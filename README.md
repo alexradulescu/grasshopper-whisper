@@ -1,3 +1,18 @@
+## Roadmap
+
+- [ ] Simple basic UI
+- [ ] Stream response from openai to user
+- [ ] Conversation history to localStorage
+- [ ] See gpt model and change it for the conversation
+- [ ] Dalle image generation
+- [ ] Code highlight
+- [ ] Read provided links
+- [ ] Allow user to switch between enter to send and enter for new line
+- [ ] Rename, delete conversation
+- [ ] Conversation groups
+- [ ] GPT role, add your own roles and select them for new conversations
+- [ ] Upload files
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
