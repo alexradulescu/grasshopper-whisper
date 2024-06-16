@@ -1,95 +1,68 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import { styled } from '@pigment-css/react'
 
 export default function Home() {
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  );
+    <Main>
+      <Aside>
+        <Heading>Chat History</Heading>
+      </Aside>
+      <ChatSection>
+        <Heading>Chat</Heading>
+        <ChatList>
+          <ChatItem>User: One message</ChatItem>
+          <ChatItem>AI: Second message</ChatItem>
+        </ChatList>
+        <Form>
+          <TextArea></TextArea>
+          <button>Send</button>
+        </Form>
+      </ChatSection>
+    </Main>
+  )
 }
+
+const Main = styled('main')({
+  display: 'flex',
+  height: '100dvh',
+  width: '100%'
+})
+
+const Aside = styled('aside')({
+  width: '300px',
+  borderRight: '1px solid black',
+  flex: '0 0 auto'
+})
+
+const ChatSection = styled('section')({
+  display: 'flex',
+  flexDirection: 'column',
+  flex: '1 0 auto'
+})
+
+const ChatList = styled('div')({
+  overflowY: 'auto',
+  flex: '1 0 auto'
+})
+
+const Form = styled('form')({
+  display: 'flex',
+  gap: '8px',
+  width: '100%'
+})
+
+const TextArea = styled('textarea')({
+  flex: '1 0 auto',
+  minHeight: '4lh'
+})
+
+const ChatItem = styled('div')({
+  display: 'flex',
+  padding: '8px',
+  gap: '8px'
+})
+
+const Heading = styled('h2')({
+  fontSize: '24px',
+  fontWeight: '500',
+  borderBottom: '1px solid black'
+})
