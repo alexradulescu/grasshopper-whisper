@@ -1,7 +1,7 @@
 ## Roadmap
 
-- [ ] Simple basic UI
-- [ ] Stream response from openai to user
+- [x] Simple basic UI
+- [x] Stream response from openai to user
 - [ ] Conversation history to localStorage
 - [ ] See gpt model and change it for the conversation
 - [ ] Dalle image generation

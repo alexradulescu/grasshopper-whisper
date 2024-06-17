@@ -1,6 +1,16 @@
+'use client'
+
+import { useChat } from '@ai-sdk/react'
 import { styled } from '@pigment-css/react'
 
 export default function Home() {
+  const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
+    api: '/api/chat',
+    body: {
+      system: 'whisper'
+    }
+  })
+
   return (
     <Main>
       <Aside>
@@ -9,11 +19,16 @@ export default function Home() {
       <ChatSection>
         <Heading>Chat</Heading>
         <ChatList>
-          <ChatItem>User: One message</ChatItem>
-          <ChatItem>AI: Second message</ChatItem>
+          {messages.map((m) => (
+            <ChatItem key={m.id}>
+              {m.role === 'user' ? 'User: ' : 'AI: '}
+              {m.content}
+            </ChatItem>
+          ))}
+          {isLoading ? <ChatItem>Loading...</ChatItem> : null}
         </ChatList>
-        <Form>
-          <TextArea></TextArea>
+        <Form onSubmit={handleSubmit}>
+          <TextArea onChange={handleInputChange} value={input} />
           <button>Send</button>
         </Form>
       </ChatSection>
@@ -40,8 +55,7 @@ const ChatSection = styled('section')({
 })
 
 const ChatList = styled('div')({
-  overflowY: 'auto',
-  flex: '1 0 auto'
+  overflowY: 'auto'
 })
 
 const Form = styled('form')({
