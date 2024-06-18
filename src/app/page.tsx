@@ -1,13 +1,48 @@
 'use client'
 
-import { useChat } from '@ai-sdk/react'
+import { create } from 'zustand'
+
+import { Message, useChat } from '@ai-sdk/react'
 import { styled } from '@pigment-css/react'
 
+interface Chat {
+  id: string
+  system?: string
+  title?: string
+  messages: Array<Message>
+}
+
+interface ChatsStoreState {
+  selectedChatId: string
+  chatList: Record<string, Chat>
+  setSelectedChatId: (id: string) => void
+  addUpdateChat: (chat: Chat) => void
+}
+
+const useChatsStore = create<ChatsStoreState>((set) => ({
+  selectedChatId: '',
+  chatList: {},
+  setSelectedChatId: (id: string) => set({ selectedChatId: id }),
+  addUpdateChat: (chat: Chat) => set((state: any) => ({ chatList: { ...state.chatList, [chat.id]: chat } }))
+}))
+
 export default function Home() {
+  const { selectedChatId, chatList, setSelectedChatId, addUpdateChat } = useChatsStore()
+
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: '/api/chat',
     body: {
       system: 'whisper'
+    },
+    onFinish: (message: Message) => {
+      addUpdateChat({
+        ...chatList[selectedChatId],
+        messages: [...messages, message]
+      })
+      console.info({
+        ...chatList[selectedChatId],
+        messages: [...messages, message]
+      })
     }
   })
 
@@ -15,6 +50,7 @@ export default function Home() {
     <Main>
       <Aside>
         <Heading>Chat History</Heading>
+        <button>New Chat</button>
       </Aside>
       <ChatSection>
         <Heading>Chat</Heading>
@@ -43,7 +79,7 @@ const Main = styled('main')({
 })
 
 const Aside = styled('aside')({
-  width: '300px',
+  width: '240px',
   borderRight: '1px solid black',
   flex: '0 0 auto'
 })
@@ -55,7 +91,8 @@ const ChatSection = styled('section')({
 })
 
 const ChatList = styled('div')({
-  overflowY: 'auto'
+  overflowY: 'auto',
+  flex: '1 0 auto'
 })
 
 const Form = styled('form')({
