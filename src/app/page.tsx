@@ -4,7 +4,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { useFetch } from '@/hooks/useFetch'
 import { Message, useChat } from '@ai-sdk/react'
+import { Robot, UserCircle } from '@phosphor-icons/react'
 import { styled } from '@pigment-css/react'
 import MarkdownPreview from '@uiw/react-markdown-preview'
 
@@ -13,6 +15,7 @@ interface Chat {
   system?: string
   title?: string
   messages: Array<Message>
+  dateTime: string | number
 }
 
 interface ChatsStoreState {
@@ -23,6 +26,7 @@ interface ChatsStoreState {
   setSelectedChatId: (id: string) => void
   addUpdateChat: (chat: Chat) => void
   setChatList: (updatedChatList: Record<string, Chat>) => void
+  updateTitle: (title: string, chatId: string) => void
 }
 
 const useChatsStore = create<ChatsStoreState>()(
@@ -34,6 +38,8 @@ const useChatsStore = create<ChatsStoreState>()(
       setStoreHydrated: (isHydrated) => set({ isStoreHydrated: isHydrated }),
       setSelectedChatId: (id) => set({ selectedChatId: id }),
       addUpdateChat: (chat) => set((state) => ({ chatList: { ...state.chatList, [chat.id]: chat } })),
+      updateTitle: (title, chatId) =>
+        set((state) => ({ chatList: { ...state.chatList, [chatId]: { ...state.chatList[chatId], title } } })),
       setChatList: (updatedChatList) => set((state) => ({ chatList: updatedChatList }))
     }),
     {
@@ -47,7 +53,8 @@ const useChatsStore = create<ChatsStoreState>()(
 )
 
 export default function Home() {
-  const { selectedChatId, chatList, setSelectedChatId, addUpdateChat, setChatList, isStoreHydrated } = useChatsStore()
+  const { selectedChatId, chatList, setSelectedChatId, addUpdateChat, setChatList, isStoreHydrated, updateTitle } =
+    useChatsStore()
   const [finishedStream, setFinishedStream] = useState(false)
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
     api: '/api/chat',
@@ -59,12 +66,20 @@ export default function Home() {
     }
   })
 
+  const { data, error, loading, fetchData } = useFetch<any>('api/completion', { messages })
+
+  const getUpdateTitle = useCallback(async () => {
+    const { title } = await fetchData()
+    updateTitle(title, selectedChatId)
+  }, [fetchData, updateTitle, selectedChatId])
+
   const startNewChat = useCallback(() => {
     const newChatId = crypto.randomUUID()
     addUpdateChat({
       id: newChatId,
       title: 'New Chat',
-      messages: []
+      messages: [],
+      dateTime: Date.now()
     })
     setSelectedChatId(newChatId)
     setMessages([])
@@ -97,8 +112,12 @@ export default function Home() {
         messages
       })
       setFinishedStream(false)
+
+      if (messages.length === 2) {
+        getUpdateTitle()
+      }
     }
-  }, [finishedStream, addUpdateChat, chatList, messages, selectedChatId])
+  }, [finishedStream, addUpdateChat, chatList, messages, selectedChatId, getUpdateTitle])
 
   const handleNewChat = () => {
     startNewChat()
@@ -136,7 +155,7 @@ export default function Home() {
         <ChatList>
           {messages.map((m) => (
             <ChatItem key={m.id}>
-              {m.role === 'user' ? 'User: ' : 'AI: '}
+              {m.role === 'user' ? <UserCircle size={32} weight="light" /> : <Robot size={32} weight="light" />}
               <MarkdownPreview source={m.content} />
             </ChatItem>
           ))}
