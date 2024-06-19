@@ -15,10 +15,10 @@ export async function POST(req: Request) {
   const response = await openai.images.generate({
     model: 'dall-e-3',
     prompt,
-    n: 1,
-    size: '1024x1024',
-    style: 'vivid',
-    quality: 'standard'
+    n: 1, // Dall-e 3 only supports 1 image in parallel.
+    size: '1024x1024', // Maybe configurable in the future.
+    style: 'vivid', // Natural look looks off and strange
+    quality: 'standard' // Standard because HD would take longer and timeout on Netlify
   })
   console.info(response.data)
 
