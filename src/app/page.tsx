@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { persist } from 'zustand/middleware'
 
 import { Message, useChat } from '@ai-sdk/react'
 import { styled } from '@pigment-css/react'
@@ -18,6 +18,8 @@ interface Chat {
 interface ChatsStoreState {
   selectedChatId: string
   chatList: Record<string, Chat>
+  isStoreHydrated: boolean
+  setStoreHydrated: (isHydrated: boolean) => void
   setSelectedChatId: (id: string) => void
   addUpdateChat: (chat: Chat) => void
   setChatList: (updatedChatList: Record<string, Chat>) => void
@@ -28,19 +30,24 @@ const useChatsStore = create<ChatsStoreState>()(
     (set) => ({
       selectedChatId: '',
       chatList: {},
+      isStoreHydrated: false,
+      setStoreHydrated: (isHydrated) => set({ isStoreHydrated: isHydrated }),
       setSelectedChatId: (id) => set({ selectedChatId: id }),
       addUpdateChat: (chat) => set((state) => ({ chatList: { ...state.chatList, [chat.id]: chat } })),
       setChatList: (updatedChatList) => set((state) => ({ chatList: updatedChatList }))
     }),
     {
       name: 'chats-zustand-storage',
-      storage: createJSONStorage(() => sessionStorage) // (optional) by default, 'localStorage' is used
+      onRehydrateStorage:
+        ({ setStoreHydrated }) =>
+        () =>
+          setStoreHydrated(true)
     }
   )
 )
 
 export default function Home() {
-  const { selectedChatId, chatList, setSelectedChatId, addUpdateChat, setChatList } = useChatsStore()
+  const { selectedChatId, chatList, setSelectedChatId, addUpdateChat, setChatList, isStoreHydrated } = useChatsStore()
   const [finishedStream, setFinishedStream] = useState(false)
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
     api: '/api/chat',
@@ -63,11 +70,25 @@ export default function Home() {
     setMessages([])
   }, [addUpdateChat, setSelectedChatId, setMessages])
 
+  const loadChat = useCallback(
+    (chatId: string) => {
+      if (Object.keys(chatList).includes(chatId)) {
+        setSelectedChatId(chatId)
+        setMessages(chatList[chatId].messages)
+      }
+    },
+    [chatList, setMessages, setSelectedChatId]
+  )
+
   useEffect(() => {
+    if (!isStoreHydrated) return
+
     if (selectedChatId === '') {
       startNewChat()
     }
-  }, [selectedChatId, startNewChat]) // Ensures a new chat is started if no chat is selected
+
+    loadChat(selectedChatId)
+  }, [selectedChatId, startNewChat, isStoreHydrated, loadChat]) // Ensures a new chat is started if no chat is selected
 
   useEffect(() => {
     if (finishedStream) {
@@ -84,11 +105,9 @@ export default function Home() {
   }
 
   const handleSelectChat = (chatId: string) => {
-    if (Object.keys(chatList).includes(chatId)) {
-      setSelectedChatId(chatId)
-      setMessages(chatList[chatId].messages)
-    }
+    loadChat(chatId)
   }
+
   const handleDeleteChat = (chatId: string) => {
     if (Object.keys(chatList).includes(chatId)) {
       delete chatList[chatId]
