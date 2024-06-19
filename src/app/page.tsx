@@ -6,6 +6,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 import { Message, useChat } from '@ai-sdk/react'
 import { styled } from '@pigment-css/react'
+import MarkdownPreview from '@uiw/react-markdown-preview'
 
 interface Chat {
   id: string
@@ -117,7 +118,7 @@ export default function Home() {
           {messages.map((m) => (
             <ChatItem key={m.id}>
               {m.role === 'user' ? 'User: ' : 'AI: '}
-              {m.content}
+              <MarkdownPreview source={m.content} />
             </ChatItem>
           ))}
           {isLoading ? <ChatItem>Loading...</ChatItem> : null}
