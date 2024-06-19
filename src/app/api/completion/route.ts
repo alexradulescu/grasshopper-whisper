@@ -1,4 +1,4 @@
-import { StreamingTextResponse, generateText, streamText } from 'ai'
+import { generateText } from 'ai'
 import { NextResponse } from 'next/server'
 
 import { openai } from '@ai-sdk/openai'

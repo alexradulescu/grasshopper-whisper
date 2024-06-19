@@ -1,13 +1,13 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+import { Aside, ChatItem, ChatList, ChatSection, Form, Heading, Main, TextArea } from '@/components/components'
 import { useFetch } from '@/hooks/useFetch'
 import { Message, useChat } from '@ai-sdk/react'
 import { Robot, UserCircle } from '@phosphor-icons/react'
-import { styled } from '@pigment-css/react'
 import MarkdownPreview from '@uiw/react-markdown-preview'
 
 interface Chat {
@@ -56,6 +56,7 @@ export default function Home() {
   const { selectedChatId, chatList, setSelectedChatId, addUpdateChat, setChatList, isStoreHydrated, updateTitle } =
     useChatsStore()
   const [finishedStream, setFinishedStream] = useState(false)
+  const [imageGenerator, setImageGenerator] = useState(false)
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages } = useChat({
     api: '/api/chat',
     body: {
@@ -66,7 +67,8 @@ export default function Home() {
     }
   })
 
-  const { data, error, loading, fetchData } = useFetch<any>('api/completion', { messages })
+  const { fetchData } = useFetch<any>('api/completion', { messages })
+  const { loading: isImageLoading, fetchData: fetchImage } = useFetch<any>('api/images', { prompt: input })
 
   const getUpdateTitle = useCallback(async () => {
     const { title } = await fetchData()
@@ -134,20 +136,33 @@ export default function Home() {
     }
   }
 
+  const handleSendMessage = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!imageGenerator) {
+      handleSubmit(e)
+    } else {
+      console.info(`IMAGE GEN`)
+      const { url } = await fetchImage()
+      console.info({ url })
+    }
+  }
+
   return (
     <Main>
       <Aside>
         <Heading>Chat History</Heading>
         <button onClick={handleNewChat}>New Chat</button>
         <div>
-          {Object.values(chatList).map((chat) => (
-            <div style={{ display: 'flex' }} key={chat.id}>
-              <button onClick={() => handleSelectChat(chat.id)}>
-                {chat.id} - {chat.title}
-              </button>
-              <button onClick={() => handleDeleteChat(chat.id)}>X</button>
-            </div>
-          ))}
+          {Object.values(chatList)
+            .reverse()
+            .map((chat) => (
+              <div style={{ display: 'flex' }} key={chat.id}>
+                <button onClick={() => handleSelectChat(chat.id)}>
+                  {chat.id} - {chat.title}
+                </button>
+                <button onClick={() => handleDeleteChat(chat.id)}>X</button>
+              </div>
+            ))}
         </div>
       </Aside>
       <ChatSection>
@@ -159,9 +174,13 @@ export default function Home() {
               <MarkdownPreview source={m.content} />
             </ChatItem>
           ))}
-          {isLoading ? <ChatItem>Loading...</ChatItem> : null}
+          {isLoading || isImageLoading ? <ChatItem>Loading...</ChatItem> : null}
         </ChatList>
-        <Form onSubmit={handleSubmit}>
+        <Form onSubmit={handleSendMessage}>
+          <label>
+            <input type="checkbox" onChange={() => setImageGenerator((prev) => !prev)} />
+            Image generator
+          </label>
           <TextArea onChange={handleInputChange} value={input} />
           <button>Send</button>
         </Form>
@@ -169,49 +188,3 @@ export default function Home() {
     </Main>
   )
 }
-
-const Main = styled('main')({
-  display: 'flex',
-  height: '100dvh',
-  width: '100%'
-})
-
-const Aside = styled('aside')({
-  width: '240px',
-  borderRight: '1px solid black',
-  flex: '0 0 auto'
-})
-
-const ChatSection = styled('section')({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: '1 0'
-})
-
-const ChatList = styled('div')({
-  overflowY: 'auto',
-  flex: '1 0 auto'
-})
-
-const Form = styled('form')({
-  display: 'flex',
-  gap: '8px',
-  width: '100%'
-})
-
-const TextArea = styled('textarea')({
-  flex: '1 0 auto',
-  minHeight: '4lh'
-})
-
-const ChatItem = styled('div')({
-  display: 'flex',
-  padding: '8px',
-  gap: '8px'
-})
-
-const Heading = styled('h2')({
-  fontSize: '24px',
-  fontWeight: '500',
-  borderBottom: '1px solid black'
-})

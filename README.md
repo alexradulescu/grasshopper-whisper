@@ -2,15 +2,15 @@
 
 - [x] Simple basic UI
 - [x] Stream response from openai to user
-- [ ] Conversation history to localStorage
-- [ ] See gpt model and change it for the conversation
-- [ ] Dalle image generation
-- [ ] Code highlight
-- [ ] Read provided links
-- [ ] Allow user to switch between enter to send and enter for new line
-- [ ] Rename, delete conversation
-- [ ] Conversation groups
+- [x] Conversation history to localStorage
+- [x] Dalle image generation
+- [x] Code highlight
+- [x] Read provided links
+- [x] Delete conversation
 - [ ] GPT role, add your own roles and select them for new conversations
+- [ ] Allow user to switch between enter to send and enter for new line
+- [ ] See gpt model and change it for the conversation
+- [ ] Conversation groups
 - [ ] Upload files
 
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).

@@ -11,11 +11,15 @@
   "dependencies": {
     "@ai-sdk/openai": "^0.0.29",
     "@ai-sdk/react": "^0.0.2",
+    "@mozilla/readability": "^0.5.0",
     "@phosphor-icons/react": "^2.1.6",
     "@pigment-css/react": "^0.0.13",
     "@uiw/react-markdown-preview": "^5.1.1",
     "ai": "^3.1.36",
+    "jsdom": "^24.1.0",
     "next": "14.2.4",
+    "node-fetch": "^3.3.2",
+    "openai": "^4.51.0",
     "react": "^18",
     "react-dom": "^18",
     "zod": "^3.23.8",
@@ -24,6 +28,7 @@
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
     "@pigment-css/nextjs-plugin": "^0.0.14",
+    "@types/jsdom": "^21.1.7",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
