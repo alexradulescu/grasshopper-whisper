@@ -27,7 +27,7 @@ export async function POST(req: Request) {
   const latestMessageContent = messages[messages.length - 1].content
   const url = containsUrl(latestMessageContent)
   if (!url) {
-    return console.error('No URL found in the provided text')
+    console.error('No URL found in the provided text')
   }
 
   try {
@@ -43,13 +43,14 @@ export async function POST(req: Request) {
     const article = reader.parse()
 
     if (!article) {
-      return console.error('Mozilla Readability failed to parse the content')
-    }
+      console.error('Mozilla Readability failed to parse the content')
+    } else {
 
     articleContent = article.textContent
     console.info(`ARTICLE!!!`, article.textContent)
+    }
   } catch (error) {
-    return console.error('Error occurred during processing')
+    console.error('Error occurred during processing')
   }
 
   const result = await streamText({
