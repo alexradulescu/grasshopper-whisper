@@ -4,11 +4,12 @@ import { FormEvent, useCallback, useEffect, useState } from 'react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
-import { Aside, ChatItem, ChatList, ChatSection, Form, Heading, Main, TextArea } from '@/components/components'
 import { useFetch } from '@/hooks/useFetch'
 import { Message, useChat } from '@ai-sdk/react'
 import { Robot, UserCircle } from '@phosphor-icons/react'
 import MarkdownPreview from '@uiw/react-markdown-preview'
+
+import styles from './styles.module.css'
 
 interface Chat {
   id: string
@@ -148,43 +149,80 @@ export default function Home() {
   }
 
   return (
-    <Main>
-      <Aside>
-        <Heading>Chat History</Heading>
-        <button onClick={handleNewChat}>New Chat</button>
-        <div>
+    <main className={styles.main}>
+      <aside className={styles.aside}>
+        <header className={styles.asideHeader}>
+          <span className={styles.asideHeaderText}>
+            <svg className={styles.bullishLogo} fill="none" viewBox="0 0 579 299" xmlns="http://www.w3.org/2000/svg">
+              <title>Bullish</title>
+              <path
+                d="M263.619 94.2131C226.143 63.9677 186.524 49.9167 136.19 42.8674C90.9524 36.5326 63.619 27.4828 23.9524 0L0 35.6752C35.5238 62.1102 68.8095 75.2085 113.905 83.0199C145.81 88.545 170.762 88.9261 203.952 106.549C197.429 115.028 191.476 127.507 187.857 135.985C171.286 126.173 146.857 118.648 114.238 118.314V160.8C130.095 161.467 144.333 163.42 163.524 171.755C186.905 181.901 203.19 197.095 203.19 197.095C221.857 131.508 263.619 94.2131 263.619 94.2131ZM368.333 149.798C334.048 175.28 312.667 213.527 306.905 255.919H271.714C291 101.739 432.667 87.8782 459.571 84.0678C508.143 77.209 542.952 62.1578 578.429 35.7229L554.476 0.0476188C514.81 27.5304 487.476 36.5802 442.238 42.915C391.905 49.9644 350.571 65.0632 313.095 95.3086C254.81 141.32 227.381 208.955 227.381 277.305L227.429 298.643H346.762V277.257C346.286 214.528 393.524 184.044 393.524 184.044C410.429 172.613 435.81 159.8 464.191 160.896V118.409C432.286 118.076 399.286 128.221 368.333 149.798Z"
+                fill="currentColor"
+              ></path>
+            </svg>
+            Bullish GPT
+          </span>
+          <button className={styles.iconButton} onClick={handleNewChat}>
+            +
+          </button>
+        </header>
+        <div className={styles.chatHistoryWrapper}>
+          <input
+            type="search"
+            placeholder="&#x1F50D; Search conversations"
+            className={styles.chatHistorySearch}
+          ></input>
+
           {Object.values(chatList)
             .reverse()
             .map((chat) => (
-              <div style={{ display: 'flex' }} key={chat.id}>
-                <button onClick={() => handleSelectChat(chat.id)}>
-                  {chat.id} - {chat.title}
+              <div className={styles.chatHistoryItem} key={chat.id}>
+                <button className={styles.chatHistoryButton} onClick={() => handleSelectChat(chat.id)}>
+                  {chat.title}
                 </button>
-                <button onClick={() => handleDeleteChat(chat.id)}>X</button>
+                <button className={styles.chatDeleteButton} onClick={() => handleDeleteChat(chat.id)}>
+                  &#215;
+                </button>
               </div>
             ))}
         </div>
-      </Aside>
-      <ChatSection>
-        <Heading>Chat</Heading>
-        <ChatList>
-          {messages.map((m) => (
-            <ChatItem key={m.id}>
-              {m.role === 'user' ? <UserCircle size={32} weight="light" /> : <Robot size={32} weight="light" />}
-              <MarkdownPreview source={m.content} />
-            </ChatItem>
+      </aside>
+      <section className={styles.chatWrapper}>
+        <header className={styles.chatHeader}>Some chat title info here</header>
+        <section className={styles.chatList}>
+          {messages.map((message) => (
+            <div className={`${styles.chatMessage} ${message.role === 'user' ? styles.isUser : ''}`} key={message.id}>
+              <span className={styles.chatMessageAuthor}>
+                {message.role === 'user' ? <UserCircle size={32} weight="light" /> : <Robot size={32} weight="light" />}
+              </span>
+
+              <div className={styles.chatMessageContent}>
+                <MarkdownPreview source={message.content} />
+              </div>
+            </div>
           ))}
-          {isLoading || isImageLoading ? <ChatItem>Loading...</ChatItem> : null}
-        </ChatList>
-        <Form onSubmit={handleSendMessage}>
-          <label>
-            <input type="checkbox" onChange={() => setImageGenerator((prev) => !prev)} />
-            Image generator
-          </label>
-          <TextArea onChange={handleInputChange} value={input} />
-          <button>Send</button>
-        </Form>
-      </ChatSection>
-    </Main>
+
+          {isLoading || isImageLoading ? (
+            <div className={`${styles.chatMessage}`}>
+              <span className={styles.chatMessageAuthor}>
+                <Robot size={32} weight="light" />
+              </span>
+
+              <div className={styles.chatMessageContent}>Loading...</div>
+            </div>
+          ) : null}
+        </section>
+        <form className={styles.chatForm} onSubmit={handleSendMessage}>
+          <textarea
+            className={styles.chatInput}
+            placeholder="Text your question here..."
+            onChange={handleInputChange}
+            value={input}
+          ></textarea>
+          <span className={styles.chatSendLegend}>&#9166; to Send / shift + &#9166; for New Line</span>
+          <button className={styles.chatSendButton}>Send &#9166; </button>
+        </form>
+      </section>
+    </main>
   )
 }
