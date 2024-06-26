@@ -212,7 +212,7 @@
   display: flex;
   border: 1px solid var(--grey-500);
   inline-size: 100%;
-  max-inline-size: 600px;
+  max-inline-size: 900px;
   margin-inline: auto;
 
   &:focus-within {
@@ -263,8 +263,18 @@
     
     &:hover,
     &:focus {
-      outline-color: color-mix(in srgb, var(--primary-green) 80%, transparent);
-      background-color: color-mix(in srgb, var(--primary-green) 80%, transparent);
+      outline-color: color-mix(in srgb, var(--primary-green) 80%, black);
+      background-color: color-mix(in srgb, var(--primary-green) 80%, black);
+    }
+
+    .isLoading {
+      background-color: var(--primary-red);
+
+      &:hover,
+      &:focus {
+        outline-color: color-mix(in srgb, var(--primary-red) 80%, black);
+        background-color: color-mix(in srgb, var(--primary-red) 80%, black);
+      }
     }
   }
 
