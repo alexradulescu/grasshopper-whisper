@@ -28,29 +28,29 @@ export async function POST(req: Request) {
   const url = containsUrl(latestMessageContent)
   if (!url) {
     console.error('No URL found in the provided text')
-  }
+  } else {
+    try {
+      const response = await fetch(url)
 
-  try {
-    const response = await fetch(url)
+      if (!response.ok) {
+        return console.error('Failed to fetch the URL')
+      }
 
-    if (!response.ok) {
-      return console.error('Failed to fetch the URL')
+      const html = await response.text()
+      const dom = new JSDOM(html, { url })
+      const reader = new Readability(dom.window.document)
+      const article = reader.parse()
+
+      if (!article) {
+        console.error('Mozilla Readability failed to parse the content')
+      } else {
+
+      articleContent = article.textContent
+      console.info(`ARTICLE!!!`, article.textContent)
+      }
+    } catch (error) {
+      console.error('Error occurred during processing')
     }
-
-    const html = await response.text()
-    const dom = new JSDOM(html, { url })
-    const reader = new Readability(dom.window.document)
-    const article = reader.parse()
-
-    if (!article) {
-      console.error('Mozilla Readability failed to parse the content')
-    } else {
-
-    articleContent = article.textContent
-    console.info(`ARTICLE!!!`, article.textContent)
-    }
-  } catch (error) {
-    console.error('Error occurred during processing')
   }
 
   const result = await streamText({

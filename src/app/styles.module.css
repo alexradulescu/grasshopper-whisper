@@ -96,7 +96,7 @@
       font-size: var(--fs3);
       padding: var(--sp2) var(--sp0) var(--sp2) var(--sp3);
       display: inline-flex;
-      align-items: start;
+      align-items: flex-start;
       flex: 1 0 auto;
       max-width: calc(100% - 36px);
       text-align: left;
