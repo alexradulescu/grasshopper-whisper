@@ -188,7 +188,7 @@ export default function Home() {
         </div>
       </aside>
       <section className={styles.chatWrapper}>
-        <header className={styles.chatHeader}>Some chat title info here</header>
+        <header className={styles.chatHeader}>{selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}</header>
         <section className={styles.chatList}>
           {messages.map((message) => (
             <div className={`${styles.chatMessage} ${message.role === 'user' ? styles.isUser : ''}`} key={message.id}>
@@ -197,7 +197,7 @@ export default function Home() {
               </span>
 
               <div className={styles.chatMessageContent}>
-                <MarkdownPreview source={message.content} />
+                <MarkdownPreview  className={styles.chatMessageMarkdown} source={message.content}  />
               </div>
             </div>
           ))}
@@ -215,7 +215,7 @@ export default function Home() {
         <form className={styles.chatForm} onSubmit={handleSendMessage}>
           <textarea
             className={styles.chatInput}
-            placeholder="Text your question here..."
+            placeholder="Type your question here..."
             onChange={handleInputChange}
             value={input}
           ></textarea>

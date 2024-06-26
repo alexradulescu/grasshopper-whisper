@@ -75,6 +75,7 @@ body {
 body {
   line-height: calc(1em + 0.5rem);
   -webkit-font-smoothing: antialiased;
+  background-color: var(--black);
 }
 img,
 picture,
@@ -96,15 +97,19 @@ button,
 textarea,
 select,
 a {
+  outline-width: 1px;
+  outline-color: transparent;
+  outline-style: solid;
+  outline-offset: 2px;
+
   transition:
-    outline 0.25s ease-out,
+    outline-color 0.25s ease-out,
     color 0.25s ease-out,
     background-color 0.25s ease-out,
     transform 0.25s ease-out;
 
   &:focus {
-    outline: 2px solid var(--primary-blue);
-    outline-offset: 2px;
+    outline-color: var(--primary-blue);
   }
 }
 

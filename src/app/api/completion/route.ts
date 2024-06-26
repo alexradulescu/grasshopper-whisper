@@ -8,8 +8,8 @@ export async function POST(req: Request) {
 
   const result = await generateText({
     model: openai('gpt-4o'),
-    prompt: `Generate a short (5-7 words) chat title based on the following initial conversation. The conversation is a set of messages, stringified: ${JSON.stringify(messages)}`
+    prompt: `Generate a short (5-7 words) chat title based on the following initial conversation. If the initial conversation is too short, infer to shere the conversation could go. The conversation is a set of messages, stringified: ${JSON.stringify(messages)}`
   })
 
-  return NextResponse.json({ title: result.text })
+  return NextResponse.json({ title: result.text.replaceAll(`"`, '') })
 }

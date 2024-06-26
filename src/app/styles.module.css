@@ -3,6 +3,7 @@
   height: 100dvh;
   background-color: var(--black);
   display: flex;
+  position: relative;
 }
 
 .aside {
@@ -10,6 +11,19 @@
   flex-shrink: 0;
   background-color: var(--grey-800);
   border-right: 1px solid var(--grey-600);
+  height: 100%;
+  z-index: 1;
+
+  @media all and (max-width: 768px) {
+    position: absolute;
+    left: -260px;
+
+    transition: transform .2s ease-out;
+
+    &.isOpen {
+      transform: translateX(100%)
+    }
+  }
 
   .asideHeader {
     display: flex;
@@ -127,6 +141,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chatHeader {
@@ -177,6 +192,11 @@
     overflow-x: auto;
   }
 
+  .chatMessageMarkdown {
+    --color-canvas-default: var(--grey-800);
+    --color-canvas-subtle: var(--grey-700);
+  }
+
   &.isUser {
     flex-direction: row-reverse;
 
@@ -190,7 +210,14 @@
   position: relative;
   padding: 0;
   display: flex;
-  border-top: 1px solid var(--grey-500);
+  border: 1px solid var(--grey-500);
+  inline-size: 100%;
+  max-inline-size: 600px;
+  margin-inline: auto;
+
+  &:focus-within {
+    border-color: var(--primary-green);
+  }
 
   .chatInput {
     width: 100%;
@@ -208,8 +235,11 @@
     outline-offset: 0;
     transition: outline 0.2s ease-out;
 
-    &:focus {
-      outline: 1px solid var(--grey-300);
+    @media all and (max-width: 768px) {
+      min-height: 2lh;
+      max-height: 6lh;
+      padding: var(--sp2) var(--sp3) var(--sp0);
+
     }
   }
 
@@ -230,8 +260,10 @@
     border-radius: var(--rd1);
     font-weight: 500;
 
+    
     &:hover,
     &:focus {
+      outline-color: color-mix(in srgb, var(--primary-green) 80%, transparent);
       background-color: color-mix(in srgb, var(--primary-green) 80%, transparent);
     }
   }
