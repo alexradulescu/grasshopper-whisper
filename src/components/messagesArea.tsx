@@ -1,11 +1,12 @@
 'use client'
 
-import React, { useRef, useEffect, useState, FC } from 'react';
-import styles from './styles.module.css'
 import { Message } from 'ai';
+import React, { FC, useEffect, useRef, useState } from 'react';
+
 import { Robot, UserCircle } from '@phosphor-icons/react'
 import MarkdownPreview from '@uiw/react-markdown-preview'
 
+import styles from './styles.module.css'
 
 interface MessageAreaProps {
   messages: Message[];
@@ -39,7 +40,7 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
       {messages.map((message) => (
         <div className={`${styles.chatMessage} ${message.role === 'user' ? styles.isUser : ''}`} key={message.id}>
           <span className={styles.chatMessageAuthor}>
-            {message.role === 'user' ? <UserCircle size={32} weight="light" /> : <Robot size={32} weight="light" />}
+            {message.role === 'user' ? '😃' : '🤖'}
           </span>
 
           <div className={styles.chatMessageContent}>

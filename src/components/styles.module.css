@@ -30,7 +30,7 @@
     justify-content: space-between;
     padding: var(--sp1) var(--sp4);
     align-items: center;
-    height: var(--sp8);
+    height: var(--sp9);
 
     .asideHeaderText {
       font-size: var(--fs5);
@@ -74,12 +74,13 @@
   height: 40px;
   padding: 0 var(--sp4);
   color: var(--grey-50);
-  margin: var(--sp2) var(--sp1);
+  margin: var(--sp2) var(--sp2);
   transition: border 0.2s ease-out;
 
   &:hover,
   &:focus {
     border: 1px solid var(--grey-200);
+    outline-color: transparent;
   }
 }
 

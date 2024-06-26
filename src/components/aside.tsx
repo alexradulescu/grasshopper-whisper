@@ -1,10 +1,9 @@
 'use client'
 
-import { FC} from 'react'
-
-import { Chat } from '@/hooks/useChatStore'
+import { FC, useMemo, useState } from 'react'
 
 import styles from '@/components/styles.module.css'
+import { Chat } from '@/hooks/useChatStore'
 
 interface AsideProps {
   startNewChat: () => void
@@ -14,6 +13,10 @@ interface AsideProps {
 }
 
 export const Aside: FC<AsideProps> = ({startNewChat, loadChat, chatList, setChatList}) => {
+  const [filter, setFilter] = useState('')
+
+  const filteredChatList = useMemo(() => Object.values(chatList).filter(chat => chat.title?.toLocaleLowerCase().includes(filter.toLocaleLowerCase())), [chatList, filter])
+
   const handleNewChat = () => {
     startNewChat()
   }
@@ -51,9 +54,11 @@ export const Aside: FC<AsideProps> = ({startNewChat, loadChat, chatList, setChat
             type="search"
             placeholder="&#x1F50D; Search conversations"
             className={styles.chatHistorySearch}
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
           ></input>
 
-          {Object.values(chatList)
+          {filteredChatList
             .reverse()
             .map((chat) => (
               <div className={styles.chatHistoryItem} key={chat.id}>
