@@ -1,20 +1,24 @@
 'use client'
 
 import { FormEvent, useCallback, useEffect, useState } from 'react'
-
-import { useFetch } from '@/hooks/useFetch'
 import { useChat } from '@ai-sdk/react'
-import { useChatsStore } from '@/hooks/useChatStore'
+import { SidebarSimple } from '@phosphor-icons/react'
+import { useMediaQuery } from 'usehooks-ts'
+
+import { Aside } from '@/components/aside'
 import { ChatForm } from '@/components/chatForm'
 import { MessagesArea } from '@/components/messagesArea'
-
 import styles from '@/components/styles.module.css'
-import { Aside } from '@/components/aside'
+import { useChatsStore } from '@/hooks/useChatStore'
+import { useFetch } from '@/hooks/useFetch'
 
 export default function Home() {
+  const isGtTablet = useMediaQuery('(min-width: 768px)')
+
   const { selectedChatId, chatList, setSelectedChatId, addUpdateChat, setChatList, isStoreHydrated, updateTitle } =
     useChatsStore()
   const [finishedStream, setFinishedStream] = useState(false)
+  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages, stop } = useChat({
     api: '/api/chat',
     body: {
@@ -24,7 +28,7 @@ export default function Home() {
       setFinishedStream(true)
     }
   })
-  
+
   const { fetchData } = useFetch<any>('api/completion', { messages })
   // TODO: Re-enable when image generation is ready
   // const [imageGenerator, setImageGenerator] = useState(false)
@@ -81,30 +85,57 @@ export default function Home() {
     }
   }, [finishedStream, addUpdateChat, chatList, messages, selectedChatId, getUpdateTitle])
 
-  const handleSendMessage = useCallback(async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (isLoading) {
-      stop()
-    } else {
-      handleSubmit(e)
-    }
-    // TODO: Re-enable when image generation is ready
-    // if (!imageGenerator) {
-    //   handleSubmit(e)
-    // } else {
-    //   console.info(`IMAGE GEN`)
-    //   const { url } = await fetchImage()
-    //   console.info({ url })
-    // }
-  }, [handleSubmit, stop, isLoading])
+  const handleSendMessage = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault()
+      if (isLoading) {
+        stop()
+      } else {
+        handleSubmit(e)
+      }
+      // TODO: Re-enable when image generation is ready
+      // if (!imageGenerator) {
+      //   handleSubmit(e)
+      // } else {
+      //   console.info(`IMAGE GEN`)
+      //   const { url } = await fetchImage()
+      //   console.info({ url })
+      // }
+    },
+    [handleSubmit, stop, isLoading]
+  )
+
+  const toggleSideMenu = () => {
+    setIsSideMenuOpen((prev) => !prev)
+  }
 
   return (
     <main className={styles.main}>
-      <Aside startNewChat={startNewChat} loadChat={loadChat} chatList={chatList} setChatList={setChatList} />
+      <Aside
+        startNewChat={startNewChat}
+        loadChat={loadChat}
+        chatList={chatList}
+        setChatList={setChatList}
+        isSideMenuOpen={isSideMenuOpen}
+      />
       <section className={styles.chatWrapper}>
-        <header className={styles.chatHeader}>{selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}</header>
+        <header className={styles.chatHeader}>
+          {selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}
+          {!isGtTablet ? (
+            <button className={styles.iconButton} {...{ popovertarget: 'sideMenu' }}>
+              <SidebarSimple size={20} />
+            </button>
+          ) : null}
+        </header>
+
         <MessagesArea messages={messages} isLoading={isLoading} />
-        <ChatForm handleSendMessage={handleSendMessage} handleInputChange={handleInputChange} input={input} isLoading={isLoading} stop={stop} />
+        <ChatForm
+          handleSendMessage={handleSendMessage}
+          handleInputChange={handleInputChange}
+          input={input}
+          isLoading={isLoading}
+          stop={stop}
+        />
       </section>
     </main>
   )

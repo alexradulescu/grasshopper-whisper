@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, FC, FormEvent } from 'react'
+import { ChangeEvent, FC, FormEvent, KeyboardEvent } from 'react'
 
 import styles from './styles.module.css'
 
@@ -10,20 +10,30 @@ interface Props {
   stop: () => void
   input: string
   isLoading: boolean
-
 }
 
-export const ChatForm: FC<Props> = ({handleSendMessage, handleInputChange, input, isLoading}) => {
+export const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, input, isLoading }) => {
+  const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      handleSendMessage(e as unknown as FormEvent<HTMLFormElement>)
+    }
+  }
+
   return (
     <form className={styles.chatForm} onSubmit={handleSendMessage}>
       <textarea
         className={styles.chatInput}
         placeholder="Type your question here..."
         onChange={handleInputChange}
+        onKeyDown={handleKeyDown}
+        autoFocus
         value={input}
       ></textarea>
       <span className={styles.chatSendLegend}>&#9166; to Send / shift + &#9166; for New Line</span>
-      <button className={`${styles.chatSendButton} ${isLoading ? styles.isLoading : ''}`} disabled={isLoading}>{isLoading ? 'Stop' : <>Send &#9166;</>}</button>
+      <button className={styles.chatSendButton} disabled={isLoading}>
+        {isLoading ? 'Loading...' : <>Send &#9166;</>}
+      </button>
     </form>
   )
 }

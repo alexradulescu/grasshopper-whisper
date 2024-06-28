@@ -16,7 +16,7 @@ module.exports = {
     '^remix$',
     '<THIRD_PARTY_MODULES>',
     '',
-    '^(@api|@assets|@ui|src|app)(/.*)$',
+    '^(@api|@assets|@ui|src|app|@/hooks|@/components)(/.*)$',
     '',
     '^(?!.*[.]css$)[./].*$',
     '.css$'

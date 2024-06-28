@@ -1,9 +1,8 @@
+import { openai } from '@ai-sdk/openai'
+import { Readability } from '@mozilla/readability'
 import { streamText } from 'ai'
 import { JSDOM } from 'jsdom'
 import fetch from 'node-fetch'
-
-import { openai } from '@ai-sdk/openai'
-import { Readability } from '@mozilla/readability'
 
 const urlPattern = new RegExp(
   '(https?:\\/\\/)?' + // Protocol (optional)
@@ -44,9 +43,8 @@ export async function POST(req: Request) {
       if (!article) {
         console.error('Mozilla Readability failed to parse the content')
       } else {
-
-      articleContent = article.textContent
-      console.info(`ARTICLE!!!`, article.textContent)
+        articleContent = article.textContent
+        console.info(`ARTICLE!!!`, article.textContent)
       }
     } catch (error) {
       console.error('Error occurred during processing')
