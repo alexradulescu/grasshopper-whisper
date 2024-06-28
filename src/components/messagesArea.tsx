@@ -1,7 +1,7 @@
 'use client'
 
 import React, { FC, useEffect, useRef, useState } from 'react'
-import { OpenAiLogo, Robot, Smiley, User, UserCircle } from '@phosphor-icons/react'
+import { OpenAiLogo, User } from '@phosphor-icons/react'
 import MarkdownPreview from '@uiw/react-markdown-preview'
 import { Message } from 'ai'
 
@@ -38,7 +38,7 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
     <section className={styles.chatList} ref={scrollRef} onScroll={handleScroll}>
       {messages.map((message) => (
         <div className={`${styles.chatMessage} ${message.role === 'user' ? styles.isUser : ''}`} key={message.id}>
-          <span className={`styles.chatMessageAuthor`}>
+          <span className={styles.chatMessageAuthor}>
             {message.role === 'user' ? <User size={32} weight="light" /> : <OpenAiLogo size={32} weight="light" />}
           </span>
 
