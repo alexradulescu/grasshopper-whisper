@@ -1,8 +1,6 @@
 'use client'
 
 import { FormEvent, useCallback, useEffect, useState } from 'react'
-import { useChat } from '@ai-sdk/react'
-import { SidebarSimple } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import { Aside } from '@/components/aside'
@@ -11,6 +9,8 @@ import { MessagesArea } from '@/components/messagesArea'
 import styles from '@/components/styles.module.css'
 import { useChatsStore } from '@/hooks/useChatStore'
 import { useFetch } from '@/hooks/useFetch'
+import { useChat } from '@ai-sdk/react'
+import { SidebarSimple } from '@phosphor-icons/react'
 
 export default function Home() {
   const isGtTablet = useMediaQuery('(min-width: 768px)')
@@ -18,7 +18,6 @@ export default function Home() {
   const { selectedChatId, chatList, setSelectedChatId, addUpdateChat, setChatList, isStoreHydrated, updateTitle } =
     useChatsStore()
   const [finishedStream, setFinishedStream] = useState(false)
-  const [isSideMenuOpen, setIsSideMenuOpen] = useState(false)
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages, stop } = useChat({
     api: '/api/chat',
     body: {
@@ -105,22 +104,12 @@ export default function Home() {
     [handleSubmit, stop, isLoading]
   )
 
-  const toggleSideMenu = () => {
-    setIsSideMenuOpen((prev) => !prev)
-  }
-
   return (
     <main className={styles.main}>
-      <Aside
-        startNewChat={startNewChat}
-        loadChat={loadChat}
-        chatList={chatList}
-        setChatList={setChatList}
-        isSideMenuOpen={isSideMenuOpen}
-      />
+      <Aside startNewChat={startNewChat} loadChat={loadChat} chatList={chatList} setChatList={setChatList} />
       <section className={styles.chatWrapper}>
         <header className={styles.chatHeader}>
-          {selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}
+          <span className={styles.chatTitle}>{selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}</span>
           {!isGtTablet ? (
             <button className={styles.iconButton} {...{ popovertarget: 'sideMenu' }}>
               <SidebarSimple size={20} />

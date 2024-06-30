@@ -1,21 +1,20 @@
 'use client'
 
 import { FC, useMemo, useState } from 'react'
-import { ChatsTeardrop, ChatText, TrashSimple } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import styles from '@/components/styles.module.css'
 import { Chat } from '@/hooks/useChatStore'
+import { ChatText, ChatsTeardrop, TrashSimple } from '@phosphor-icons/react'
 
 interface AsideProps {
   startNewChat: () => void
   loadChat: (chatId: string) => void
   setChatList: (updatedChatList: Record<string, Chat>) => void
   chatList: Record<string, Chat>
-  isSideMenuOpen: boolean
 }
 
-export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, setChatList, isSideMenuOpen }) => {
+export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, setChatList }) => {
   const [filter, setFilter] = useState('')
   const isGtTablet = useMediaQuery('(min-width: 768px)')
 
@@ -41,12 +40,7 @@ export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, setCha
   }
 
   return (
-    <aside
-      className={styles.aside}
-      data-is-open={isSideMenuOpen}
-      id="sideMenu"
-      {...{ popover: isGtTablet ? undefined : 'auto' }}
-    >
+    <aside className={styles.aside} id="sideMenu" {...{ popover: isGtTablet ? undefined : 'auto' }}>
       <header className={styles.asideHeader}>
         <span className={styles.asideHeaderText}>
           <svg className={styles.bullishLogo} fill="none" viewBox="0 0 579 299" xmlns="http://www.w3.org/2000/svg">
@@ -68,20 +62,20 @@ export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, setCha
       </header>
       <input
         type="search"
-        placeholder="&#x1F50D; Search conversations"
+        placeholder="Search conversations"
         className={styles.chatHistorySearch}
         value={filter}
         onChange={(e) => setFilter(e.target.value)}
       />
       <div className={styles.chatHistoryWrapper}>
-        {filteredChatList.reverse().map((chat) => (
+        {filteredChatList.map((chat) => (
           <div className={styles.chatHistoryItem} key={chat.id}>
             <button
               className={styles.chatHistoryButton}
               onClick={() => handleSelectChat(chat.id)}
               {...{ popovertarget: 'sideMenu', popovertargetaction: 'hide' }}
             >
-              <ChatsTeardrop size={20} />
+              <ChatsTeardrop size={16} />
               {chat.title}
             </button>
             <button className={styles.chatDeleteButton} onClick={() => handleDeleteChat(chat.id)}>
