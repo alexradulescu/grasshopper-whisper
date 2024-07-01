@@ -25,7 +25,7 @@ export const Aside: FC<AsideProps> = ({ loadChat }) => {
   const [filter, setFilter] = useState('')
   const isLtTablet = useMediaQuery('(max-width: 960px)')
 
-  const { chatList, deleteChat, newChat } = useChatsStore()
+  const { chatList, deleteChat, newChat, selectedChatId } = useChatsStore()
 
   const filteredChatList = useMemo(
     () =>
@@ -61,7 +61,7 @@ export const Aside: FC<AsideProps> = ({ loadChat }) => {
       />
       <div className={styles.chatHistoryWrapper}>
         {filteredChatList.map((chat) => (
-          <div className={styles.chatHistoryItem} key={chat.id}>
+          <div className={styles.chatHistoryItem} data-is-active={chat.id === selectedChatId} key={chat.id}>
             <button
               className={styles.chatHistoryButton}
               onClick={() => handleSelectChat(chat.id)}
