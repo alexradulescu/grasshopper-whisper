@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     messages,
     /** Custom system message in case there is a link provided by the user to extract data. */
     system: articleContent
-      ? `While answering user request, please also take into account the following main content from the URL provided by the user in the latest message: ${articleContent}`
+      ? `Consider the URL content in your response. If irrelevant, inform the user and provide your best answer. Link Content: ${articleContent}`
       : undefined
   })
 
