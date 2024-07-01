@@ -1,10 +1,11 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import React, { FC, useEffect, useRef, useState } from 'react'
-import { OpenAiLogo, UserCircle } from '@phosphor-icons/react'
-import MarkdownPreview from '@uiw/react-markdown-preview'
 import { Message } from 'ai'
+import React, { FC, useEffect, useRef, useState } from 'react'
+
+import { ArrowDown, OpenAiLogo, UserCircle } from '@phosphor-icons/react'
+import MarkdownPreview from '@uiw/react-markdown-preview'
 
 import styles from './styles.module.css'
 
@@ -44,6 +45,17 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
       const { scrollTop, scrollHeight, clientHeight } = scrollElement
       const isBottom = Math.abs(scrollHeight - clientHeight - scrollTop) < 1
       setIsScrolledToBottom(isBottom)
+    }
+  }
+
+  const scrollToBottom = () => {
+    const scrollElement = scrollRef.current
+    if (scrollElement) {
+      scrollElement.scrollTo({
+        top: scrollElement.scrollHeight,
+        behavior: 'smooth'
+      })
+      setIsScrolledToBottom(true)
     }
   }
 
@@ -106,6 +118,13 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
           <div className={styles.chatMessageContent}>Loading...</div>
         </div>
       ) : null}
+
+      <button
+        className={`${styles.iconButton} ${styles.backToBottomButton} ${isScrolledToBottom ? styles.isHidden : undefined}`}
+        onClick={scrollToBottom}
+      >
+        <ArrowDown size={20} />
+      </button>
     </section>
   )
 }
