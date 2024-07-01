@@ -119,12 +119,14 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
         </div>
       ) : null}
 
-      <button
-        className={`${styles.iconButton} ${styles.backToBottomButton} ${isScrolledToBottom ? styles.isHidden : undefined}`}
-        onClick={scrollToBottom}
-      >
-        <ArrowDown size={20} />
-      </button>
+      {messages.length ? (
+        <button
+          className={`${styles.iconButton} ${styles.backToBottomButton} ${isScrolledToBottom ? styles.isHidden : undefined}`}
+          onClick={scrollToBottom}
+        >
+          <ArrowDown size={20} />
+        </button>
+      ) : null}
     </section>
   )
 }
