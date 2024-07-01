@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useCallback, useEffect } from 'react'
+import { FormEvent, useCallback, useEffect, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { SidebarSimple } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
@@ -18,7 +18,7 @@ export default function Home() {
   /** In memory with localStorage persistance datastore */
   const { selectedChatId, chatList, setSelectedChatId, isStoreHydrated, updateTitle, addChatMessage, newChat } =
     useChatsStore()
-  // const [finishedStream, setFinishedStream] = useState(false)
+  const [finishedStream, setFinishedStream] = useState(false)
 
   /** Using Vercel's useChat hook as it supports quite a wide variety of features
    * if we want to expand it further and it is very actively maintained */
@@ -27,13 +27,8 @@ export default function Home() {
     body: {
       system: 'whisper'
     },
-    onFinish: (newMessage) => {
-      const updatesMessageList = [...messages, newMessage]
-      addChatMessage(updatesMessageList, selectedChatId)
-
-      if (updatesMessageList.length >= 2 && chatList[selectedChatId].title === 'New Chat') {
-        updateTitleMutation.mutate({ updatesMessageList })
-      }
+    onFinish: () => {
+      setFinishedStream(true)
     }
   })
 
@@ -78,6 +73,21 @@ export default function Home() {
 
     loadChat(selectedChatId)
   }, [selectedChatId, newChat, isStoreHydrated, loadChat]) // Ensures a new chat is started if no chat is selected
+
+  /** Adding messages to the history once the streaming finished (to prevent constant rerenders while streaming)
+   * and generating a title if one wasn't generated already.
+   * Not implementing this in the useChat onFinish because we don't have access to the full list of messages, causing issues with the history.
+   */
+  useEffect(() => {
+    if (finishedStream) {
+      addChatMessage(messages, selectedChatId)
+      setFinishedStream(false)
+
+      if (messages.length >= 2 && chatList[selectedChatId].title === 'New Chat') {
+        updateTitleMutation.mutate({ messages })
+      }
+    }
+  }, [finishedStream, addChatMessage, chatList, messages, selectedChatId, updateTitleMutation])
 
   const handleSendMessage = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
