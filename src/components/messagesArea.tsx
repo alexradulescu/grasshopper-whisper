@@ -66,10 +66,10 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
           <p className={styles.emptyMessageSubtitle}>
             I&lsquo;m Bullish GPT, your AI conversation assistant. How can I help you?
             <br />
-            You can ask me anything, I am running the latest, fastest ChatGPT under the hood.
-            <br />
+            You can ask me anything, I am running the latest ChatGPT(gpt-4omni) under the hood.
+            {/* <br />
             I can also read most links you provide me (1 per message) for things like generic documentation and provide
-            you code snippets.
+            you code snippets. */}
             <br />
             <em>
               Please remember not to share any sensitive proprietary data in our chats and to double-check the answers,
