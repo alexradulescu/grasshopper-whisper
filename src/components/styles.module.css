@@ -383,16 +383,30 @@
     border-radius: var(--rd1);
     font-weight: 500;
     color: var(--grey-50);
-    background-color: color-mix(in oklab, var(--primary-green) 35%, black);
-    border: 1px solid color-mix(in oklab, var(--primary-green) 65%, black);
+
+    --bg-color: var(--primary-green);
+    --mix-percent-bg: 35%;
+    --mix-percent-border: 65%;
+    background-color: color-mix(in oklab, var(--bg-color) var(--mix-percent-bg), black);
+    border: 1px solid color-mix(in oklab, var(--bg-color) var(--mix-percent-border), black);
 
     &:hover,
     &:focus {
-      background-color: color-mix(in srgb, var(--primary-green) 65%, black);
+      --mix-percent-bg: 65%;
       color: var(--white);
     }
     &:focus {
-      outline-color: color-mix(in srgb, var(--primary-green) 80%, black);
+      outline-color: color-mix(in srgb, var(--bg-color) 80%, black);
+    }
+
+    &[data-is-loading='true'] {
+      --bg-color: var(--primary-red);
+
+      &:hover,
+      &:focus {
+        --mix-percent-bg: 35%;
+        color: var(--white);
+      }
     }
   }
 

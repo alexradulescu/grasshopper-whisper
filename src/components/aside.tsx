@@ -76,7 +76,11 @@ export const Aside: FC<AsideProps> = ({ loadChat }) => {
           </div>
         ))}
       </div>
-      <button className={styles.asideNewChatButton} onClick={newChat}>
+      <button
+        className={styles.asideNewChatButton}
+        onClick={newChat}
+        {...{ popovertarget: 'sideMenu', popovertargetaction: 'hide' }}
+      >
         <ChatText size={20} /> New Chat
       </button>
     </aside>

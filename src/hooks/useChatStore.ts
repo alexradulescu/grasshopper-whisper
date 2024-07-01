@@ -48,7 +48,7 @@ export const useChatsStore = create<ChatsStoreState>()(
           if (!state.chatList[chatId]) return state
 
           const newChatList = { ...state.chatList }
-          newChatList[chatId] = { ...newChatList[chatId], messages: [...newChatList[chatId].messages, ...messages] }
+          newChatList[chatId] = { ...newChatList[chatId], messages: [...messages] }
           return { chatList: newChatList }
         }),
       updateTitle: (title, chatId) =>
