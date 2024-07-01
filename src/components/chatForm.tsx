@@ -13,6 +13,7 @@ interface Props {
 }
 
 export const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, input, isLoading }) => {
+  /** On Enter, send the message. Use Shift + Enter to add new line. */
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()

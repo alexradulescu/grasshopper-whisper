@@ -16,8 +16,38 @@ const containsUrl = (text: string): string | null => {
   return match ? match[0] : null
 }
 
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30
+/** Fetches and parses the URL content
+ * 1. Fetch the full html content of the URL. If the page is JS driven, then it won't get anything.
+ * 2. Parse the content using Mozilla Readability, best for article and documentation stile links.
+ */
+const getArticleContent = async (url: string): Promise<string | null> => {
+  try {
+    const response = await fetch(url)
+
+    if (!response.ok) {
+      console.error('Failed to fetch the URL')
+      return null
+    }
+
+    const html = await response.text()
+    const dom = new JSDOM(html, { url })
+    const reader = new Readability(dom.window.document)
+    const article = reader.parse()
+
+    if (!article) {
+      console.error('Mozilla Readability failed to parse the content')
+      return null
+    } else {
+      return article.textContent
+    }
+  } catch (error) {
+    console.error('Error occurred during processing')
+    return null
+  }
+}
+
+/** Allow streaming responses up to 26 seconds, netlify max. Vercel has a much higher limit */
+export const maxDuration = 26
 
 export async function POST(req: Request) {
   const { messages } = await req.json()
@@ -28,32 +58,14 @@ export async function POST(req: Request) {
   if (!url) {
     console.error('No URL found in the provided text')
   } else {
-    try {
-      const response = await fetch(url)
-
-      if (!response.ok) {
-        return console.error('Failed to fetch the URL')
-      }
-
-      const html = await response.text()
-      const dom = new JSDOM(html, { url })
-      const reader = new Readability(dom.window.document)
-      const article = reader.parse()
-
-      if (!article) {
-        console.error('Mozilla Readability failed to parse the content')
-      } else {
-        articleContent = article.textContent
-        console.info(`ARTICLE!!!`, article.textContent)
-      }
-    } catch (error) {
-      console.error('Error occurred during processing')
-    }
+    articleContent = await getArticleContent(url)
   }
 
   const result = await streamText({
+    /** Using gpt-4 omni by default for now. Might add model selector later on if needed. */
     model: openai('gpt-4o'),
     messages,
+    /** Custom system message in case there is a link provided by the user to extract data. */
     system: articleContent
       ? `While answering user request, please also take into account the following main content from the URL provided by the user in the latest message: ${articleContent}`
       : undefined

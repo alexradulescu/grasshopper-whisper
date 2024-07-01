@@ -56,6 +56,7 @@
 * {
   margin: 0;
 }
+
 html,
 body {
   min-height: 100dvh;
@@ -73,11 +74,13 @@ body {
     'Helvetica Neue',
     sans-serif;
 }
+
 body {
   line-height: calc(1em + 0.5rem);
   -webkit-font-smoothing: antialiased;
   background-color: var(--black);
 }
+
 img,
 picture,
 video,
@@ -86,6 +89,7 @@ svg {
   display: block;
   max-width: 100%;
 }
+
 input,
 button,
 textarea,
@@ -102,12 +106,15 @@ a {
   outline-color: transparent;
   outline-style: solid;
   outline-offset: 2px;
+  cursor: pointer;
 
   transition:
-    outline-color 0.25s ease-out,
-    color 0.25s ease-out,
-    background-color 0.25s ease-out,
-    transform 0.25s ease-out;
+    outline-color 0.2s ease-out,
+    color 0.2s ease-out,
+    background-color 0.2s ease-out,
+    border-color 0.2s ease-out,
+    border 0.2s ease-out,
+    transform 0.2s ease-out;
 
   &:focus {
     outline-color: var(--primary-blue);
@@ -130,6 +137,7 @@ h6 {
   overflow-wrap: break-word;
   text-wrap: pretty;
 }
+
 #root,
 #__next {
   isolation: isolate;
