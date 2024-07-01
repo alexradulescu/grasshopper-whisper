@@ -23,7 +23,7 @@ export const BullishLogo = () => (
 
 export const Aside: FC<AsideProps> = ({ loadChat }) => {
   const [filter, setFilter] = useState('')
-  const isGtTablet = useMediaQuery('(min-width: 768px)')
+  const isLtTablet = useMediaQuery('(max-width: 960px)')
 
   const { chatList, deleteChat, newChat } = useChatsStore()
 
@@ -38,7 +38,7 @@ export const Aside: FC<AsideProps> = ({ loadChat }) => {
   }
 
   return (
-    <aside className={styles.aside} id="sideMenu" {...{ popover: isGtTablet ? undefined : 'auto' }}>
+    <aside className={styles.aside} id="sideMenu" {...{ popover: isLtTablet ? 'auto' : undefined }}>
       <header className={styles.asideHeader}>
         <span className={styles.asideHeaderText}>
           <BullishLogo />

@@ -35,13 +35,10 @@
   flex-direction: column;
 
   @media all and (max-width: 960px) {
-    width: 260px;
-  }
-
-  @media all and (max-width: 768px) {
     position: absolute;
     width: calc(100vw - 48px);
     left: 100vw;
+    max-width: 480px;
     border: 0;
 
     transition:
@@ -218,16 +215,17 @@
   color: var(--grey-200);
   font-weight: 500;
   font-size: var(--fs4);
-  padding: var(--sp1) var(--sp4);
-  height: var(--sp8);
+  padding: var(--sp1) var(--sp5);
+  height: var(--sp9);
   border-bottom: 1px solid var(--grey-700);
   align-items: center;
   display: flex;
   justify-content: space-between;
 
-  @media all and (max-width: 768px) {
+  @media all and (max-width: 960px) {
     padding: var(--sp1) var(--sp2) var(--sp1) var(--sp4);
     font-size: var(--fs3);
+    height: var(--sp8);
   }
 
   .chatTitle {
@@ -252,7 +250,7 @@
     justify-content: center;
     margin-bottom: var(--sp5);
 
-    @media all and (max-width: 768px) {
+    @media all and (max-width: 960px) {
       font-size: var(--fs6);
     }
   }
@@ -276,7 +274,7 @@
   display: flex;
   flex-direction: column;
 
-  @media all and (max-width: 768px) {
+  @media all and (max-width: 960px) {
     padding: var(--sp4);
     gap: var(--sp3);
   }
@@ -297,7 +295,7 @@
     flex-shrink: 0;
     color: color-mix(in oklab, var(--primary-blue) 75%, white);
 
-    @media all and (max-width: 768px) {
+    @media all and (max-width: 960px) {
       display: none;
     }
   }
@@ -358,7 +356,7 @@
     outline-offset: 0;
     transition: outline 0.2s ease-out;
 
-    @media all and (max-width: 768px) {
+    @media all and (max-width: 960px) {
       min-height: 2lh;
       max-height: 6lh;
       padding: var(--sp2) var(--sp3) var(--sp0);

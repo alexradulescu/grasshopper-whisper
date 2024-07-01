@@ -13,7 +13,7 @@ import { useChatsStore } from '@/hooks/useChatStore'
 import { useMutation } from '@/hooks/useMutation'
 
 export default function Home() {
-  const isGtTablet = useMediaQuery('(min-width: 768px)')
+  const isLtTablet = useMediaQuery('(max-width: 960px)')
 
   /** In memory with localStorage persistance datastore */
   const { selectedChatId, chatList, setSelectedChatId, isStoreHydrated, updateTitle, addChatMessage, newChat } =
@@ -117,7 +117,7 @@ export default function Home() {
           <section className={styles.chatWrapper}>
             <header className={styles.chatHeader}>
               <span className={styles.chatTitle}>{selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}</span>
-              {!isGtTablet ? (
+              {isLtTablet ? (
                 <button className={styles.iconButton} {...{ popovertarget: 'sideMenu' }}>
                   <SidebarSimple size={20} />
                 </button>

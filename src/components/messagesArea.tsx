@@ -83,9 +83,9 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
         <div className={`${styles.chatMessage} ${message.role === 'user' ? styles.isUser : ''}`} key={message.id}>
           <span className={styles.chatMessageAuthor}>
             {message.role === 'user' ? (
-              <UserCircle size={32} weight="light" />
+              <UserCircle size={28} weight="light" />
             ) : (
-              <OpenAiLogo size={32} weight="light" />
+              <OpenAiLogo size={28} weight="light" />
             )}
           </span>
 
