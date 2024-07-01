@@ -65,7 +65,7 @@ export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, delete
         onChange={(e) => setFilter(e.target.value)}
       />
       <div className={styles.chatHistoryWrapper}>
-        {filteredChatList.map((chat) => (
+        {filteredChatList.reverse().map((chat) => (
           <div className={styles.chatHistoryItem} key={chat.id}>
             <button
               className={styles.chatHistoryButton}
