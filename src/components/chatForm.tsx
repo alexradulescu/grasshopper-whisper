@@ -25,7 +25,7 @@ export const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, inpu
     <form className={styles.chatForm} onSubmit={handleSendMessage}>
       <textarea
         className={styles.chatInput}
-        placeholder="Type your question here..."
+        placeholder="Type your message here..."
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
         autoFocus
@@ -33,7 +33,7 @@ export const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, inpu
       ></textarea>
       <span className={styles.chatSendLegend}>&#9166; to Send / shift + &#9166; for New Line</span>
       <button className={styles.chatSendButton} data-is-loading={isLoading}>
-        {isLoading ? <>&#9209; Stop</> : <>Send &#9166;</>}
+        {isLoading ? <>&#8855; Stop</> : <>Send &#9166;</>}
       </button>
     </form>
   )
