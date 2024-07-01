@@ -59,9 +59,10 @@ export const useChatsStore = create<ChatsStoreState>()(
 
           const newChatList = { ...state.chatList }
           delete newChatList[chatId]
+          const newSelectedChatId = Object.keys(newChatList).length ? Object.keys(newChatList)[0] : ''
           return {
             chatList: newChatList,
-            selectedChatId: state.selectedChatId === chatId ? '' : state.selectedChatId
+            selectedChatId: newSelectedChatId
           }
         })
     }),
