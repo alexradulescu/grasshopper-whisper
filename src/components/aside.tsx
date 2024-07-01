@@ -5,13 +5,10 @@ import { ChatsTeardrop, ChatText, TrashSimple } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import styles from '@/components/styles.module.css'
-import { Chat } from '@/hooks/useChatStore'
+import { Chat, useChatsStore } from '@/hooks/useChatStore'
 
 interface AsideProps {
-  startNewChat: () => void
   loadChat: (chatId: string) => void
-  deleteChat: (chatId: string) => void
-  chatList: Record<string, Chat>
 }
 
 export const BullishLogo = () => (
@@ -24,19 +21,17 @@ export const BullishLogo = () => (
   </svg>
 )
 
-export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, deleteChat }) => {
+export const Aside: FC<AsideProps> = ({ loadChat }) => {
   const [filter, setFilter] = useState('')
   const isGtTablet = useMediaQuery('(min-width: 768px)')
+
+  const { chatList, deleteChat, newChat } = useChatsStore()
 
   const filteredChatList = useMemo(
     () =>
       Object.values(chatList).filter((chat) => chat.title?.toLocaleLowerCase().includes(filter.toLocaleLowerCase())),
     [chatList, filter]
   )
-
-  const handleNewChat = () => {
-    startNewChat()
-  }
 
   const handleSelectChat = (chatId: string) => {
     loadChat(chatId)
@@ -51,7 +46,7 @@ export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, delete
         </span>
         <button
           className={styles.iconButton}
-          onClick={handleNewChat}
+          onClick={newChat}
           {...{ popovertarget: 'sideMenu', popovertargetaction: 'hide' }}
         >
           <ChatText size={20} />
@@ -65,7 +60,7 @@ export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, delete
         onChange={(e) => setFilter(e.target.value)}
       />
       <div className={styles.chatHistoryWrapper}>
-        {filteredChatList.reverse().map((chat) => (
+        {filteredChatList.map((chat) => (
           <div className={styles.chatHistoryItem} key={chat.id}>
             <button
               className={styles.chatHistoryButton}
@@ -81,7 +76,7 @@ export const Aside: FC<AsideProps> = ({ startNewChat, loadChat, chatList, delete
           </div>
         ))}
       </div>
-      <button className={styles.asideNewChatButton} onClick={handleNewChat}>
+      <button className={styles.asideNewChatButton} onClick={newChat}>
         <ChatText size={20} /> New Chat
       </button>
     </aside>

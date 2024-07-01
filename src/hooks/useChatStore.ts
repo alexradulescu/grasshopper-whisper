@@ -18,7 +18,7 @@ export interface ChatsStoreState {
   isStoreHydrated: boolean
   setStoreHydrated: (isHydrated: boolean) => void
   setSelectedChatId: (id: string) => void
-  addUpdateChat: (chat: Chat) => void
+  newChat: () => void
   addChatMessage: (messages: Message[], chatId: string) => void
   updateTitle: (title: string, chatId: string) => void
   deleteChat: (chatId: string) => void
@@ -32,7 +32,17 @@ export const useChatsStore = create<ChatsStoreState>()(
       isStoreHydrated: false,
       setStoreHydrated: (isHydrated) => set({ isStoreHydrated: isHydrated }),
       setSelectedChatId: (id) => set({ selectedChatId: id }),
-      addUpdateChat: (chat) => set((state) => ({ chatList: { ...state.chatList, [chat.id]: chat } })),
+      newChat: () =>
+        set((state) => {
+          const newChat = {
+            id: crypto.randomUUID(),
+            title: 'New Chat',
+            messages: [],
+            dateTime: Date.now()
+          }
+
+          return { chatList: { [newChat.id]: newChat, ...state.chatList }, selectedChatId: newChat.id }
+        }),
       addChatMessage: (messages, chatId) =>
         set((state) => {
           if (!state.chatList[chatId]) return state

@@ -1,6 +1,6 @@
 'use client'
 
-import { FormEvent, useCallback, useEffect, useState } from 'react'
+import { FormEvent, useCallback, useEffect } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { SidebarSimple } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
@@ -16,17 +16,9 @@ export default function Home() {
   const isGtTablet = useMediaQuery('(min-width: 768px)')
 
   /** In memory with localStorage persistance datastore */
-  const {
-    selectedChatId,
-    chatList,
-    setSelectedChatId,
-    addUpdateChat,
-    isStoreHydrated,
-    updateTitle,
-    deleteChat,
-    addChatMessage
-  } = useChatsStore()
-  const [finishedStream, setFinishedStream] = useState(false)
+  const { selectedChatId, chatList, setSelectedChatId, isStoreHydrated, updateTitle, addChatMessage, newChat } =
+    useChatsStore()
+  // const [finishedStream, setFinishedStream] = useState(false)
 
   /** Using Vercel's useChat hook as it supports quite a wide variety of features
    * if we want to expand it further and it is very actively maintained */
@@ -35,9 +27,13 @@ export default function Home() {
     body: {
       system: 'whisper'
     },
-    onFinish: (message) => {
-      console.info('Finished Stream', messages, message)
-      setFinishedStream(true)
+    onFinish: (newMessage) => {
+      const updatesMessageList = [...messages, newMessage]
+      addChatMessage(updatesMessageList, selectedChatId)
+
+      if (updatesMessageList.length >= 2 && chatList[selectedChatId].title === 'New Chat') {
+        updateTitleMutation.mutate({ updatesMessageList })
+      }
     }
   })
 
@@ -54,31 +50,20 @@ export default function Home() {
   // const [imageGenerator, setImageGenerator] = useState(false)
   // const { loading: isImageLoading, fetchData: fetchImage } = useFetch<any>('api/images', { prompt: input })
 
-  /** Create a new chat and store it in the global store */
-  const startNewChat = useCallback(() => {
-    const newChat = {
-      id: crypto.randomUUID(),
-      title: 'New Chat',
-      messages: [],
-      dateTime: Date.now()
-    }
-
-    addUpdateChat(newChat)
-    setSelectedChatId(newChat.id)
-    setMessages(newChat.messages)
-  }, [addUpdateChat, setSelectedChatId, setMessages])
-
   /** Load an existing chat when user clicks on one.
    * Holding selectedChat in memory for now for simplicity, might refactor to using router later on.
+   * If no chat is selected (brand new user), a new chat is started.
    */
   const loadChat = useCallback(
     (chatId: string) => {
       if (Object.keys(chatList).includes(chatId)) {
-        setSelectedChatId(chatId)
+        if (chatId !== selectedChatId) {
+          setSelectedChatId(chatId)
+        }
         setMessages(chatList[chatId].messages)
       }
     },
-    [chatList, setMessages, setSelectedChatId]
+    [chatList, setMessages, setSelectedChatId, selectedChatId]
   )
 
   /** Waiting for the global store to be hydrated, otherwise we will miss the history and always start a new one
@@ -88,23 +73,11 @@ export default function Home() {
     if (!isStoreHydrated) return
 
     if (selectedChatId === '') {
-      startNewChat()
+      newChat()
     }
 
     loadChat(selectedChatId)
-  }, [selectedChatId, startNewChat, isStoreHydrated, loadChat]) // Ensures a new chat is started if no chat is selected
-
-  /** Adding messages to the history and generating a title if one wasn't generated already. */
-  useEffect(() => {
-    if (finishedStream) {
-      addChatMessage(messages, selectedChatId)
-      setFinishedStream(false)
-
-      if (messages.length >= 2 && chatList[selectedChatId].title === 'New Chat') {
-        updateTitleMutation.mutate({ messages })
-      }
-    }
-  }, [finishedStream, addChatMessage, chatList, messages, selectedChatId, updateTitleMutation])
+  }, [selectedChatId, newChat, isStoreHydrated, loadChat]) // Ensures a new chat is started if no chat is selected
 
   const handleSendMessage = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
@@ -130,7 +103,7 @@ export default function Home() {
     <main className={styles.main}>
       {isStoreHydrated ? (
         <>
-          <Aside startNewChat={startNewChat} loadChat={loadChat} chatList={chatList} deleteChat={deleteChat} />
+          <Aside loadChat={loadChat} />
           <section className={styles.chatWrapper}>
             <header className={styles.chatHeader}>
               <span className={styles.chatTitle}>{selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}</span>
