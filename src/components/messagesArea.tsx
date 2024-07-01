@@ -75,6 +75,8 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
               Please remember not to share any sensitive proprietary data in our chats and to double-check the answers,
               ChatGPT can make mistakes.
             </em>
+            <br />
+            <strong>Go Bullish ! 🖖✌️</strong>
           </p>
           `
         </div>

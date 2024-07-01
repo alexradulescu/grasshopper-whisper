@@ -263,6 +263,11 @@
       color: color-mix(in oklab, var(--primary-yellow) 75%, var(--grey-300));
       font-style: normal;
     }
+
+    & strong {
+      color: var(--primary-green);
+      font-weight: 500;
+    }
   }
 }
 
