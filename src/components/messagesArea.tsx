@@ -1,11 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import { Message } from 'ai'
 import React, { FC, useEffect, useRef, useState } from 'react'
-
 import { ArrowDown, OpenAiLogo, UserCircle } from '@phosphor-icons/react'
 import MarkdownPreview from '@uiw/react-markdown-preview'
+import { Message } from 'ai'
 
 import styles from './styles.module.css'
 
@@ -103,7 +102,7 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
             )}
           </span>
 
-          <div className={styles.chatMessageContent}>
+          <div className={styles.chatMessageContent} data-color-mode="dark">
             <MarkdownPreview className={styles.chatMessageMarkdown} source={message.content} />
           </div>
         </div>

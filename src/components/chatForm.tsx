@@ -1,6 +1,7 @@
 'use client'
 
 import { ChangeEvent, FC, FormEvent, KeyboardEvent } from 'react'
+import { ArrowUDownLeft, Stop } from '@phosphor-icons/react'
 
 import styles from './styles.module.css'
 
@@ -30,11 +31,23 @@ export const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, inpu
         onKeyDown={handleKeyDown}
         autoFocus
         value={input}
+        id="chatInput"
       ></textarea>
-      <span className={styles.chatSendLegend}>&#9166; to Send / shift + &#9166; for New Line</span>
-      <button className={styles.chatSendButton} data-is-loading={isLoading}>
-        {isLoading ? <>&#8855; Stop</> : <>Send &#9166;</>}
-      </button>
+      <label className={styles.chatFormFooter} htmlFor="chatInput">
+        <span className={styles.chatSendLegend}>&#9166; to Send / SHIFT + &#9166; for new line</span>
+        <button className={styles.chatSendButton} data-is-loading={isLoading}>
+          {isLoading ? (
+            <>
+              <Stop size={16} />
+              Stop
+            </>
+          ) : (
+            <>
+              Send <ArrowUDownLeft size={16} />
+            </>
+          )}
+        </button>
+      </label>
     </form>
   )
 }
