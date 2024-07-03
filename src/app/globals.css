@@ -50,7 +50,7 @@
   --scrollbar-color-thumb: var(--grey-600);
   --scrollbar-color-track: transparent;
   --scrollbar-width: thin;
-  --scrollbar-width-legacy: var(--sp3);
+  --scrollbar-width-legacy: 6px; /* Fallback for safari and legacy browsers */
 }
 
 *,
@@ -160,6 +160,7 @@ h6 {
 @supports selector(::-webkit-scrollbar) {
   *::-webkit-scrollbar-thumb {
     background: var(--scrollbar-color-thumb);
+    border-radius: var(--rd2);
   }
   *::-webkit-scrollbar-track {
     background: var(--scrollbar-color-track);
