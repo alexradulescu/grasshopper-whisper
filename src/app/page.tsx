@@ -130,7 +130,6 @@ export default function Home() {
               handleInputChange={handleInputChange}
               input={input}
               isLoading={isLoading}
-              stop={stop}
             />
           </section>
         </>

@@ -138,8 +138,7 @@
     right: var(--sp0);
 
     &.isHidden {
-      opacity: 0;
-      visibility: none;
+      display: none;
       pointer-events: none;
     }
 
@@ -321,6 +320,8 @@
   flex-direction: column;
   position: relative;
   margin-inline: auto;
+  max-width: 100%;
+  width: 1170px; /* 1045px + padding + 2 avatar sizes sp that visually the chat boxes are as wide as the text area below at max */
 
   @media all and (max-width: 960px) {
     padding: var(--sp4);
@@ -351,7 +352,7 @@
     background-color: var(--grey-800);
     border-radius: var(--rd0) var(--rd3) var(--rd3) var(--rd3);
     padding: var(--sp3) var(--sp4);
-    color: var(--grey-500);
+    color: var(--grey-50);
     max-width: 100ch;
     overflow-x: auto;
 
