@@ -1,7 +1,7 @@
 'use client'
 
 import { FC, useMemo, useState } from 'react'
-import { ChatsTeardrop, ChatText, TrashSimple } from '@phosphor-icons/react'
+import { ChatsTeardrop, ChatText, RocketLaunch, TrashSimple } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import styles from '@/components/styles.module.css'
@@ -83,6 +83,15 @@ export const Aside: FC<AsideProps> = ({ loadChat }) => {
       >
         <ChatText size={20} /> New Chat
       </button>
+      <a
+        href="https://docs.google.com/forms/d/e/1FAIpQLSfpOGiqQ9_6_H4gIuNyCOsRjN98dww7FB7JWS0J_gPq-nEXNw/viewform?usp=sf_link"
+        rel="noopener noreferrer nofollow"
+        target="_blank"
+        title="Give Feedback"
+        className={styles.asideGiveFeedbackButton}
+      >
+        <RocketLaunch size={20} /> Give Feedback
+      </a>
     </aside>
   )
 }

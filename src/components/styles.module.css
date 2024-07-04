@@ -109,6 +109,28 @@
       color: var(--white);
     }
   }
+
+  .asideGiveFeedbackButton {
+    min-height: 36px;
+    min-width: 36px;
+    font-size: var(--fs3);
+    text-decoration: none;
+    padding: var(--sp1) var(--sp4);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--rd1);
+    font-weight: 500;
+    gap: var(--sp1);
+    color: var(--grey-100);
+    background-color: transparent;
+
+    &:hover,
+    &:focus {
+      background-color: color-mix(in srgb, var(--primary-blue) 15%, transparent);
+      color: color-mix(in srgb, var(--primary-blue) 15%, white);
+    }
+  }
 }
 
 .iconButton {
@@ -356,6 +378,12 @@
     max-width: 100ch;
     overflow-x: auto;
 
+    &.isLoading {
+      flex-grow: 1;
+      text-align: center;
+      animation: l1 0.5s linear infinite alternate;
+    }
+
     .chatMessageMarkdown {
       --color-canvas-default: transparent;
       --color-canvas-subtle: var(--grey-700);
@@ -482,5 +510,15 @@
     color: var(--grey-400);
     font-size: var(--fs2);
     font-weight: 500;
+  }
+}
+
+.loader {
+  animation: l1 1s linear infinite alternate;
+}
+
+@keyframes l1 {
+  to {
+    opacity: 0.3;
   }
 }

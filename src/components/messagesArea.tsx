@@ -114,7 +114,7 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
             <OpenAiLogo size={32} weight="light" />
           </span>
 
-          <div className={styles.chatMessageContent}>Loading...</div>
+          <div className={`${styles.chatMessageContent} ${styles.isLoading}`}>Loading...</div>
         </div>
       ) : null}
 
