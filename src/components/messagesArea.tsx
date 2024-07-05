@@ -85,6 +85,16 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
             <em>
               Please remember not to share any sensitive proprietary data in our chats and to double-check the answers,
               ChatGPT can make mistakes.
+              <br />
+              Read more on the{' '}
+              <a
+                href="https://blockone.atlassian.net/wiki/spaces/B1/pages/2911010864/BullsAI+-+Acceptable+Use+Policy"
+                rel="noopener noreferrer nofollow"
+                target="_blank"
+                title="Acceptable Use Policy"
+              >
+                Acceptable Use Policy here
+              </a>
             </em>
             <br />
             <strong>Go Bullish ! 🖖✌️</strong>

@@ -382,6 +382,7 @@
       flex-grow: 1;
       text-align: center;
       animation: l1 0.5s linear infinite alternate;
+      padding: var(--sp2) var(--sp3);
     }
 
     .chatMessageMarkdown {
