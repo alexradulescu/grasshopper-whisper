@@ -1,7 +1,7 @@
 .main {
   width: 100%;
   height: 100dvh;
-  background-color: var(--black);
+  background-color: var(--grey-1000);
   display: flex;
   position: relative;
   overflow: hidden;
@@ -100,13 +100,13 @@
     font-weight: 500;
     gap: var(--sp1);
     color: var(--grey-50);
-    background-color: color-mix(in oklab, var(--primary-blue) 35%, black);
-    border: 1px solid color-mix(in oklab, var(--primary-blue) 65%, black);
+    background-color: color-mix(in oklab, var(--primary-blue) 35%, var(--grey-1000));
+    border: 1px solid color-mix(in oklab, var(--primary-blue) 65%, var(--grey-1000));
 
     &:hover,
     &:focus {
-      background-color: color-mix(in srgb, var(--primary-blue) 65%, black);
-      color: var(--white);
+      background-color: color-mix(in srgb, var(--primary-blue) 65%, var(--grey-1000));
+      color: var(--grey-0);
     }
   }
 
@@ -128,7 +128,7 @@
     &:hover,
     &:focus {
       background-color: color-mix(in srgb, var(--primary-blue) 15%, transparent);
-      color: color-mix(in srgb, var(--primary-blue) 15%, white);
+      color: color-mix(in srgb, var(--primary-blue) 15%, var(--grey-0));
     }
   }
 }
@@ -193,7 +193,7 @@
       background-color: var(--grey-600);
 
       .chatHistoryButton {
-        color: var(--white);
+        color: var(--grey-0);
       }
     }
 
@@ -233,7 +233,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      color: color-mix(in oklab, var(--primary-red) 75%, black);
+      color: color-mix(in oklab, var(--primary-red) 75%, var(--grey-1000));
 
       & svg {
         will-change: transform;
@@ -287,7 +287,7 @@
     right: 0;
     bottom: calc(-1 * var(--sp2) - 1px);
     height: var(--sp2);
-    background: linear-gradient(to top, transparent 0%, var(--black) 100%);
+    background: linear-gradient(to top, transparent 0%, var(--grey-1000) 100%);
   }
 
   .chatTitle {
@@ -364,7 +364,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: color-mix(in oklab, var(--primary-blue) 75%, white);
+    color: color-mix(in oklab, var(--primary-blue) 75%, var(--grey-0));
 
     @media all and (max-width: 960px) {
       display: none;
@@ -379,15 +379,28 @@
     overflow-x: auto;
 
     &.isLoading {
-      flex-grow: 1;
-      text-align: center;
       animation: l1 0.5s linear infinite alternate;
-      padding: var(--sp2) var(--sp3);
+    }
+
+    &.hasError {
+      background-color: color-mix(in oklab, var(--primary-red) 35%, var(--grey-1000));
     }
 
     .chatMessageMarkdown {
       --color-canvas-default: transparent;
       --color-canvas-subtle: var(--grey-700);
+    }
+
+    .chatMessagePreview {
+      white-space: pre-wrap;
+      font-family: var(--sans-font-family);
+    }
+
+    .retryButton {
+      color: color-mix(in oklab, var(--primary-red) 64%, var(--grey-0));
+      background: transparent;
+      border: 0;
+      text-decoration: underline;
     }
 
     &[data-color-mode='dark'] {
@@ -407,7 +420,7 @@
 
     .chatMessageContent {
       border-radius: var(--rd3) var(--rd0) var(--rd3) var(--rd3);
-      background-color: color-mix(in oklab, var(--primary-green) 35%, var(--black));
+      background-color: color-mix(in oklab, var(--primary-green) 35%, var(--grey-1000));
     }
   }
 }
@@ -434,7 +447,7 @@
     right: 0;
     top: calc(-1 * var(--sp2) - 1px);
     height: var(--sp2);
-    background: linear-gradient(to bottom, transparent 0%, var(--black) 100%);
+    background: linear-gradient(to bottom, transparent 0%, var(--grey-1000) 100%);
   }
 
   .chatInput {
@@ -484,16 +497,16 @@
     --bg-color: var(--primary-green);
     --mix-percent-bg: 35%;
     --mix-percent-border: 65%;
-    background-color: color-mix(in oklab, var(--bg-color) var(--mix-percent-bg), black);
-    border: 1px solid color-mix(in oklab, var(--bg-color) var(--mix-percent-border), black);
+    background-color: color-mix(in oklab, var(--bg-color) var(--mix-percent-bg), var(--grey-1000));
+    border: 1px solid color-mix(in oklab, var(--bg-color) var(--mix-percent-border), var(--grey-1000));
 
     &:hover,
     &:focus {
       --mix-percent-bg: 65%;
-      color: var(--white);
+      color: var(--grey-0);
     }
     &:focus {
-      outline-color: color-mix(in srgb, var(--bg-color) 80%, black);
+      outline-color: color-mix(in srgb, var(--bg-color) 80%, var(--grey-1000));
     }
 
     &[data-is-loading='true'] {
@@ -502,7 +515,7 @@
       &:hover,
       &:focus {
         --mix-percent-bg: 35%;
-        color: var(--white);
+        color: var(--grey-0);
       }
     }
   }
@@ -511,6 +524,46 @@
     color: var(--grey-400);
     font-size: var(--fs2);
     font-weight: 500;
+  }
+}
+
+.chatConfigWrapper {
+  padding: var(--sp3);
+  border-left: 1px solid var(--grey-700);
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp3);
+
+  .chatConfigHeadline {
+    color: var(--grey-100);
+  }
+
+  .promptTextarea {
+    width: 100%;
+    background-color: transparent;
+    border: 1px solid var(--grey-500);
+    field-sizing: content;
+    max-height: 8lh;
+    color: var(--grey-50);
+    padding: var(--sp2) var(--sp3);
+    resize: none;
+    border-radius: var(--rd1);
+    font-size: var(--fs3);
+
+    outline: 1px solid transparent;
+    outline-offset: 0;
+    transition: outline 0.2s ease-out;
+
+    &:hover,
+    &:focus {
+      border-color: var(--grey-100);
+    }
+
+    @media all and (max-width: 960px) {
+      max-height: 4lh;
+    }
   }
 }
 

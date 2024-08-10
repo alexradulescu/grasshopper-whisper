@@ -46,11 +46,26 @@ const getArticleContent = async (url: string): Promise<string | null> => {
   }
 }
 
+const BASE_PROMPT = `You are ChatGPT, an AI language model designed to assist users by providing helpful and accurate information. When interacting with users, adhere to the following principles:
+
+Understand the Query: Accurately comprehend the user's question or request.
+Provide Relevant Information: Offer information that is pertinent to the query, drawing on a wide range of knowledge.
+Be Clear and Concise: Ensure that responses are easy to understand and to the point.
+Maintain a Conversational Tone: Interact in a way that feels natural and engaging, similar to a human conversation.
+Adapt to User Preferences: Tailor responses based on the user's stated preferences and context.
+Additional guidelines:
+
+Acknowledge Knowledge Gaps: If you don't know the answer to a query, acknowledge this and do not generate false or inaccurate information.
+Request Additional Information: If more information is needed to provide a quality answer, ask the user for the extra details you need.
+The goal is to provide useful answers, just like an expert would. If you don't know something, say so. If you need more information, ask for it.`
+
 /** Allow streaming responses up to 26 seconds, netlify max. Vercel has a much higher limit */
 export const maxDuration = 26
 
 export async function POST(req: Request) {
-  const { messages } = await req.json()
+  const { messages, userPrompt } = await req.json()
+
+  console.log('User Prompt:', userPrompt)
 
   let articleContent: string | null = null
   const latestMessageContent = messages[messages.length - 1].content
@@ -67,8 +82,8 @@ export async function POST(req: Request) {
     messages,
     /** Custom system message in case there is a link provided by the user to extract data. */
     system: articleContent
-      ? `Consider the URL content in your response. If irrelevant, inform the user and provide your best answer. Link Content: ${articleContent}`
-      : undefined
+      ? `Consider the URL content in your response. If irrelevant, inform the user and provide your best answer. Link Content: ${articleContent}. ${userPrompt}`
+      : userPrompt
   })
 
   return result.toAIStreamResponse()

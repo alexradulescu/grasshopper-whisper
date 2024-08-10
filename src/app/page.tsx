@@ -1,19 +1,24 @@
 'use client'
 
-import { FormEvent, useCallback, useEffect, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
 import { SidebarSimple } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
 
-import { Aside, BullishLogo } from '@/components/aside'
-import { ChatForm } from '@/components/chatForm'
-import { MessagesArea } from '@/components/messagesArea'
+import { ChatConfigMemo } from '@/components/chatConfig'
+import { ChatFormMemo } from '@/components/chatForm'
+import { BullishLogo, MainSidebarMemo } from '@/components/mainSidebar'
+import { MessagesAreaMemo } from '@/components/messagesArea'
 import styles from '@/components/styles.module.css'
 import { useChatsStore } from '@/hooks/useChatStore'
 import { useMutation } from '@/hooks/useMutation'
 
 export default function Home() {
   const isLtTablet = useMediaQuery('(max-width: 960px)')
+  const [errorState, setErrorState] = useState({
+    hasError: false,
+    selectedChatId: ''
+  })
 
   /** In memory with localStorage persistance datastore */
   const { selectedChatId, chatList, setSelectedChatId, isStoreHydrated, updateTitle, addChatMessage, newChat } =
@@ -22,21 +27,45 @@ export default function Home() {
 
   /** Using Vercel's useChat hook as it supports quite a wide variety of features
    * if we want to expand it further and it is very actively maintained */
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages, stop } = useChat({
+  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages, stop, reload } = useChat({
     api: '/api/chat',
     body: {
-      system: 'whisper'
+      userPrompt: chatList[selectedChatId]?.prompt || ''
+    },
+    onResponse: () => {
+      /** Resetting error state when a new message is sent or retried */
+      setErrorState({
+        hasError: false,
+        selectedChatId: selectedChatId
+      })
     },
     onFinish: () => {
       setFinishedStream(true)
-    }
+    },
+    onError: (error) => {
+      console.warn('Error:', error)
+      setErrorState({
+        hasError: true,
+        selectedChatId: selectedChatId
+      })
+    },
+    keepLastMessageOnError: true
   })
+
+  /** Reset errorState when changing chat */
+  useEffect(() => {
+    if (errorState.selectedChatId !== selectedChatId) {
+      setErrorState({
+        hasError: false,
+        selectedChatId: selectedChatId
+      })
+    }
+  }, [errorState.selectedChatId, selectedChatId])
 
   /** Mutation to generate a conversation title based on the first user and ai message. */
   const updateTitleMutation = useMutation<{ title: string }, Error>({
     url: 'api/completion',
     onSuccess: (data) => {
-      console.info(data)
       updateTitle(data.title, selectedChatId)
     },
     onError: (error) => console.error('Error:', error)
@@ -113,7 +142,7 @@ export default function Home() {
     <main className={styles.main}>
       {isStoreHydrated ? (
         <>
-          <Aside loadChat={loadChat} />
+          <MainSidebarMemo loadChat={loadChat} />
           <section className={styles.chatWrapper}>
             <header className={styles.chatHeader}>
               <span className={styles.chatTitle}>{selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}</span>
@@ -124,14 +153,21 @@ export default function Home() {
               ) : null}
             </header>
 
-            <MessagesArea messages={messages} isLoading={isLoading} />
-            <ChatForm
+            <MessagesAreaMemo
+              messages={messages}
+              isLoading={isLoading}
+              finishedStream={finishedStream}
+              reload={reload}
+              error={errorState.hasError}
+            />
+            <ChatFormMemo
               handleSendMessage={handleSendMessage}
               handleInputChange={handleInputChange}
               input={input}
               isLoading={isLoading}
             />
           </section>
+          <ChatConfigMemo />
         </>
       ) : (
         <h1 className={styles.mainLoading}>

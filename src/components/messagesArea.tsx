@@ -1,11 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 'use client'
 
-import React, { FC, useEffect, useRef, useState } from 'react'
-import { ArrowDown, OpenAiLogo, UserCircle } from '@phosphor-icons/react'
-import MarkdownPreview from '@uiw/react-markdown-preview'
+import React, { FC, memo, useEffect, useRef, useState } from 'react'
+import { UseChatHelpers } from '@ai-sdk/react'
+import { ArrowDown, OpenAiLogo } from '@phosphor-icons/react'
 import { Message } from 'ai'
 
+import { MessageItemMemo } from './messageItem'
 import styles from './styles.module.css'
 
 function getTimeBasedGreeting(): string {
@@ -23,9 +24,12 @@ function getTimeBasedGreeting(): string {
 interface MessageAreaProps {
   messages: Message[]
   isLoading: boolean
+  finishedStream: boolean
+  reload: UseChatHelpers['reload']
+  error: boolean
 }
 
-export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
+const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading, finishedStream, reload, error }) => {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true)
 
@@ -35,8 +39,18 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
       if (isScrolledToBottom) {
         scrollElement.scrollTop = scrollElement.scrollHeight
       }
+
+      /** When AI is streaming the response, we render the preview unformatted.
+       * Once streaming finished, the answer gets formatted in MarkdownPreview, which changes the total height
+       * and it isn't truly at the bottom (although isScrolledToBottom is true)
+       * Then we scroll to the bottom again to make sure we are truly at the bottom.
+       * If isScrolledToBottom is false, the user has scrolled up and we don't want to scroll them down forcefully
+       */
+      if (finishedStream && isScrolledToBottom) {
+        scrollToBottom()
+      }
     }
-  }, [messages, isScrolledToBottom])
+  }, [messages, isScrolledToBottom, finishedStream])
 
   const handleScroll = () => {
     const scrollElement = scrollRef.current
@@ -102,29 +116,35 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
           `
         </div>
       ) : null}
-      {messages.map((message) => (
-        <div className={`${styles.chatMessage} ${message.role === 'user' ? styles.isUser : ''}`} key={message.id}>
-          <span className={styles.chatMessageAuthor}>
-            {message.role === 'user' ? (
-              <UserCircle size={28} weight="light" />
-            ) : (
-              <OpenAiLogo size={28} weight="light" />
-            )}
-          </span>
-
-          <div className={styles.chatMessageContent} data-color-mode="dark">
-            <MarkdownPreview className={styles.chatMessageMarkdown} source={message.content} />
-          </div>
-        </div>
+      {messages.map((message, index) => (
+        <MessageItemMemo
+          key={message.id}
+          {...message}
+          isLastAgentMessageAndLoading={index === messages.length - 1 && message.role != 'user' && isLoading}
+        />
       ))}
 
       {isLoading ? (
         <div className={styles.chatMessage}>
           <span className={styles.chatMessageAuthor}>
-            <OpenAiLogo size={32} weight="light" />
+            <OpenAiLogo size={28} weight="light" />
           </span>
 
           <div className={`${styles.chatMessageContent} ${styles.isLoading}`}>Loading...</div>
+        </div>
+      ) : null}
+      {error ? (
+        <div className={styles.chatMessage}>
+          <span className={styles.chatMessageAuthor}>
+            <OpenAiLogo size={28} weight="light" />
+          </span>
+
+          <div className={`${styles.chatMessageContent} ${styles.hasError}`}>
+            There was an error generating the response.
+            <button className={styles.retryButton} onClick={() => reload()}>
+              Click here to retry
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -139,3 +159,5 @@ export const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading }) => {
     </section>
   )
 }
+
+export const MessagesAreaMemo = memo(MessagesArea)

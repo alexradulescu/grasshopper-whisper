@@ -10,6 +10,7 @@ export interface Chat {
   title?: string
   messages: Array<Message>
   dateTime: string | number
+  prompt?: string
 }
 
 export interface ChatsStoreState {
@@ -21,6 +22,7 @@ export interface ChatsStoreState {
   newChat: () => void
   addChatMessage: (messages: Message[], chatId: string) => void
   updateTitle: (title: string, chatId: string) => void
+  updatePrompt: (prompt: string, chatId: string) => void
   deleteChat: (chatId: string) => void
 }
 
@@ -53,6 +55,8 @@ export const useChatsStore = create<ChatsStoreState>()(
         }),
       updateTitle: (title, chatId) =>
         set((state) => ({ chatList: { ...state.chatList, [chatId]: { ...state.chatList[chatId], title } } })),
+      updatePrompt: (prompt, chatId) =>
+        set((state) => ({ chatList: { ...state.chatList, [chatId]: { ...state.chatList[chatId], prompt } } })),
       deleteChat: (chatId) =>
         set((state) => {
           if (!state.chatList[chatId]) return state

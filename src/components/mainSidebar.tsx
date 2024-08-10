@@ -1,13 +1,15 @@
 'use client'
 
-import { FC, useMemo, useState } from 'react'
-import { ChatsTeardrop, ChatText, RocketLaunch, TrashSimple } from '@phosphor-icons/react'
+import { FC, memo, useMemo, useState } from 'react'
+import { ChatText, RocketLaunch } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
 
 import styles from '@/components/styles.module.css'
-import { Chat, useChatsStore } from '@/hooks/useChatStore'
+import { useChatsStore } from '@/hooks/useChatStore'
 
-interface AsideProps {
+import { ChatHistoryItemMemo } from './chatHistoryItem'
+
+interface Props {
   loadChat: (chatId: string) => void
 }
 
@@ -21,7 +23,7 @@ export const BullishLogo = () => (
   </svg>
 )
 
-export const Aside: FC<AsideProps> = ({ loadChat }) => {
+const MainSidebar: FC<Props> = ({ loadChat }) => {
   const [filter, setFilter] = useState('')
   const isLtTablet = useMediaQuery('(max-width: 960px)')
 
@@ -61,19 +63,13 @@ export const Aside: FC<AsideProps> = ({ loadChat }) => {
       />
       <div className={styles.chatHistoryWrapper}>
         {filteredChatList.map((chat) => (
-          <div className={styles.chatHistoryItem} data-is-active={chat.id === selectedChatId} key={chat.id}>
-            <button
-              className={styles.chatHistoryButton}
-              onClick={() => handleSelectChat(chat.id)}
-              {...{ popovertarget: 'sideMenu', popovertargetaction: 'hide' }}
-            >
-              <ChatsTeardrop size={16} />
-              {chat.title}
-            </button>
-            <button className={styles.chatDeleteButton} onClick={() => deleteChat(chat.id)}>
-              <TrashSimple size={16} weight="bold" />
-            </button>
-          </div>
+          <ChatHistoryItemMemo
+            key={chat.id}
+            {...chat}
+            handleSelectChat={handleSelectChat}
+            deleteChat={deleteChat}
+            isSelectedChat={chat.id === selectedChatId}
+          />
         ))}
       </div>
       <button
@@ -95,3 +91,5 @@ export const Aside: FC<AsideProps> = ({ loadChat }) => {
     </aside>
   )
 }
+
+export const MainSidebarMemo = memo(MainSidebar)

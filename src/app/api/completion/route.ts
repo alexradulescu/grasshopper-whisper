@@ -8,8 +8,8 @@ export async function POST(req: Request) {
 
   /** Using plain generate, not streaming data as the whole response is very vast and short */
   const result = await generateText({
-    /** Using gpt 3.5 turbo as it is cheaper and yet fast, for limited task like a conversation title */
-    model: openai('gpt-3.5-turbo'),
+    /** Using gpt 4o mini as it is cheaper and yet fast, for limited task like a conversation title */
+    model: openai('gpt-4o-mini'),
     prompt: `Generate a short (5-10 words) chat title based on the following initial conversation. If the initial conversation is too short, infer to where the conversation could go. The conversation is a set of messages, stringified: ${JSON.stringify(messages)}`
   })
 

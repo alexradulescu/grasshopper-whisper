@@ -1,6 +1,6 @@
 'use client'
 
-import { ChangeEvent, FC, FormEvent, KeyboardEvent } from 'react'
+import { ChangeEvent, FC, FormEvent, KeyboardEvent, memo } from 'react'
 import { ArrowUDownLeft, Stop } from '@phosphor-icons/react'
 
 import styles from './styles.module.css'
@@ -12,7 +12,7 @@ interface Props {
   isLoading: boolean
 }
 
-export const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, input, isLoading }) => {
+const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, input, isLoading }) => {
   /** On Enter, send the message. Use Shift/Ctrl/Alt/Meta + Enter  to add new line. */
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
@@ -70,3 +70,9 @@ export const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, inpu
     </form>
   )
 }
+
+const areEqual = (prevProps: Props, nextProps: Props) => {
+  return prevProps.input === nextProps.input && prevProps.isLoading === nextProps.isLoading
+}
+
+export const ChatFormMemo = memo(ChatForm, areEqual)
