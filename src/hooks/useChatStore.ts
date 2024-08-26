@@ -1,8 +1,9 @@
 'use client'
 
-import { Message } from '@ai-sdk/react'
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+
+import { Message } from '@ai-sdk/react'
 
 export interface Chat {
   id: string

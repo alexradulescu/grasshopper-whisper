@@ -576,3 +576,24 @@
     opacity: 0.3;
   }
 }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  width: 600px;
+  max-width: 100%;
+  height: fit-content;
+  margin: auto;
+  overflow: auto;
+
+  background-color: var(--grey-700);
+  padding: var(--sp5) var(--sp6);
+  border-radius: var(--rd2);
+
+  &[popover]::backdrop {
+    backdrop-filter: blur(2px);
+  }
+}
+
+.listItem {
+}
