@@ -585,6 +585,7 @@
   height: fit-content;
   margin: auto;
   overflow: auto;
+  border: none;
 
   background-color: var(--grey-700);
   padding: var(--sp5) var(--sp6);
@@ -595,5 +596,85 @@
   }
 }
 
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
 .listItem {
+  padding: var(--sp4) var(--sp2);
+  transition: background-color 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp3);
+
+  &:is(button) {
+    background: transparent;
+    border: none;
+    border-radius: var(--rd1);
+    text-align: left;
+
+    &:hover {
+      background-color: var(--grey-800);
+    }
+  }
+
+  &:not(:last-of-type) {
+    border-bottom: 1px solid var(--grey-500);
+  }
+
+  & h2 {
+    font-size: var(--fs4);
+    color: color-mix(in oklab, var(--primary-green) 70%, var(--grey-0));
+    font-weight: 700;
+  }
+
+  & p {
+    font-size: var(--fs4);
+    color: var(--grey-100);
+  }
+}
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp1);
+}
+
+.tag {
+  --color: var(--grey-600);
+  font-size: var(--fs3);
+  background-color: var(--color);
+  color: color-mix(in oklab, var(--color) 30%, var(--grey-0));
+  padding: var(--sp1) var(--sp2);
+  border-radius: var(--rd1);
+}
+
+.hStack {
+  display: flex;
+  gap: var(--sp2);
+}
+
+.button {
+  --color: var(--primary-blue);
+
+  min-height: 36px;
+  min-width: 36px;
+  font-size: var(--fs3);
+  padding: var(--sp1) var(--sp4);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--rd1);
+  font-weight: 500;
+  gap: var(--sp1);
+  color: var(--grey-50);
+  background-color: color-mix(in oklab, var(--color) 35%, var(--grey-1000));
+  border: 1px solid color-mix(in oklab, var(--color) 65%, var(--grey-1000));
+
+  &:hover,
+  &:focus {
+    background-color: color-mix(in srgb, var(--color) 65%, var(--grey-1000));
+    color: var(--grey-0);
+  }
 }

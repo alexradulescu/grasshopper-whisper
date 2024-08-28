@@ -11,21 +11,27 @@ function PromptList() {
   const { setSelectedPromptId, promptList } = usePromptStore()
 
   return (
-    <div className={styles.chatHistoryWrapper}>
+    <div className={styles.list}>
       {Object.values(promptList).map((prompt) => (
-        <div className={styles.chatHistoryItem} key={prompt.id}>
-          <button
-            key={prompt.id}
-            className={styles.chatHistoryButton}
-            onClick={() => setSelectedPromptId(prompt.id)}
-            popoverTarget="promptModal"
-            popoverTargetAction="hide"
-          >
+        <button
+          key={prompt.id}
+          className={styles.listItem}
+          onClick={() => setSelectedPromptId(prompt.id)}
+          popoverTarget="promptModal"
+          popoverTargetAction="hide"
+        >
+          <div className={styles.hStack}>
             <h2>{prompt.title}</h2>
-            <small>{prompt.tags.join(', ')}</small>
-            <p>{prompt.prompt}</p>
-          </button>
-        </div>
+            <div className={styles.tagList}>
+              {prompt.tags.map((tag) => (
+                <span className={styles.tag} key={tag}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+          <p>{prompt.prompt}</p>
+        </button>
       ))}
     </div>
   )
@@ -45,13 +51,13 @@ function PromptSetup() {
   }
 
   return (
-    <div id="createPrompt" popover="auto" className={styles.modal}>
+    <form id="createPrompt" popover="auto" className={styles.modal} onSubmit={handleSavePrompt}>
       <h2>Setup your own custom prompt</h2>
-      <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" />
-      <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags" />
-      <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Prompt text" />
-      <button onClick={handleSavePrompt}>Save Prompt</button>
-    </div>
+      <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Title" required />
+      <input type="text" value={tags} onChange={(e) => setTags(e.target.value)} placeholder="Tags" required />
+      <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} placeholder="Prompt text" required />
+      <button className={styles.button}>Save Prompt</button>
+    </form>
   )
 }
 
@@ -75,7 +81,7 @@ function App() {
       <button popoverTarget="promptModal">Select Prompt</button>
       <div id="promptModal" popover="auto">
         <PromptList />
-        <button popoverTarget="createPrompt" id="setup-prompt-button">
+        <button popoverTarget="createPrompt" id="setup-prompt-button" className={styles.button}>
           Setup Prompt
         </button>
         <PromptSetup />
@@ -97,9 +103,15 @@ export const ChatConfig: FC = () => {
   return (
     <div className={styles.chatConfigWrapper} id="chatConfig" {...{ popover: isLtTablet ? 'auto' : undefined }}>
       {selectedPrompt ? (
-        <div className="selected-prompt" style={{ color: '#fff' }}>
-          <h3>{selectedPrompt.title}</h3>
-          <small>{selectedPrompt.tags.join(', ')}</small>
+        <div className={styles.listItem} style={{ color: '#fff' }}>
+          <h2>{selectedPrompt.title}</h2>
+          <div className={styles.tagList}>
+            {selectedPrompt.tags.map((tag) => (
+              <span className={styles.tag} key={tag}>
+                {tag}
+              </span>
+            ))}
+          </div>
           <p>{selectedPrompt.prompt}</p>
         </div>
       ) : (
@@ -108,8 +120,8 @@ export const ChatConfig: FC = () => {
       <button popoverTarget="promptModal">Select Prompt</button>
       <div id="promptModal" popover="auto" className={styles.modal}>
         <PromptList />
-        <button popoverTarget="createPrompt" id="setup-prompt-button">
-          Setup Prompt
+        <button popoverTarget="createPrompt" id="setup-prompt-button" className={styles.button}>
+          Add New Prompt
         </button>
         <PromptSetup />
       </div>
