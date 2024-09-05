@@ -583,6 +583,7 @@
   width: 600px;
   max-width: 100%;
   height: fit-content;
+  max-height: calc(100dvh - 24px);
   margin: auto;
   overflow: auto;
   border: none;
@@ -643,16 +644,28 @@
 
 .tag {
   --color: var(--grey-600);
-  font-size: var(--fs3);
+  font-size: var(--fs2);
   background-color: var(--color);
   color: color-mix(in oklab, var(--color) 30%, var(--grey-0));
-  padding: var(--sp1) var(--sp2);
+  padding: var(--sp0) var(--sp2);
   border-radius: var(--rd1);
 }
 
 .hStack {
   display: flex;
   gap: var(--sp2);
+}
+
+.vStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp2);
+}
+
+.heading {
+  font-size: var(--fs4);
+  color: var(--grey-200);
+
 }
 
 .button {
@@ -677,4 +690,37 @@
     background-color: color-mix(in srgb, var(--color) 65%, var(--grey-1000));
     color: var(--grey-0);
   }
+}
+
+.formControl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp1);
+}
+
+.label {
+  color: var(--grey-200);
+  font-size: var(--fs4);
+}
+
+.input, .textarea {
+  background-color: transparent;
+  border: 1px solid var(--grey-400);
+  border-radius: var(--rd2);
+  line-height: 40px;
+  height: 40px;
+  padding: 0 var(--sp4);
+  color: var(--grey-50);
+
+  &:hover,
+  &:focus {
+    border-color: var(--grey-50);
+  }
+}
+
+.textarea {
+  field-sizing: content;
+  min-height: 2lh;
+  max-height: 8lh;
+  resize: vertical;
 }
