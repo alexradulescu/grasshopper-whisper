@@ -1,34 +1,52 @@
 'use client'
 
-import { FormEvent, useCallback, useEffect, useState } from 'react'
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
-import { SidebarSimple } from '@phosphor-icons/react'
+import { SidebarSimple, Sliders } from '@phosphor-icons/react'
 import { useMediaQuery } from 'usehooks-ts'
 
+import { ChatConfigMemo, DEFAULT_CHAT_CONFIG } from '@/components/chatConfig'
 import { ChatFormMemo } from '@/components/chatForm'
 import { BullishLogo, MainSidebarMemo } from '@/components/mainSidebar'
 import { MessagesAreaMemo } from '@/components/messagesArea'
 import styles from '@/components/styles.module.css'
 import { useChatsStore } from '@/hooks/useChatStore'
 import { useMutation } from '@/hooks/useMutation'
+import { getCurrentDate, usePromptStore } from '@/hooks/usePromptStore'
 
 export default function Home() {
   const isLtTablet = useMediaQuery('(max-width: 960px)')
+  const [isConfigOpen, setIsConfigOpen] = useState(true)
   const [finishedStream, setFinishedStream] = useState(false)
   const [errorState, setErrorState] = useState({
     hasError: false,
     selectedChatId: ''
   })
+  const { selectedPromptId, promptList } = usePromptStore()
 
   /** In memory with localStorage persistance datastore */
   const { selectedChatId, chatList, setSelectedChatId, isStoreHydrated, updateProp, addChatMessage, newChat } =
     useChatsStore()
 
+  /** Memoized tge chatConfig to it doesn't recreate the hook on every render */
+  const chatConfig = useMemo(
+    () => ({
+      userPrompt: selectedPromptId ? promptList[selectedPromptId].prompt.replace('<CURRENT_DATE>', getCurrentDate()) : '',
+      model: chatList[selectedChatId]?.model || DEFAULT_CHAT_CONFIG.model,
+      temperature: chatList[selectedChatId]?.temperature || DEFAULT_CHAT_CONFIG.temperature,
+      topP: chatList[selectedChatId]?.topP || DEFAULT_CHAT_CONFIG.topP,
+      maxTokens: chatList[selectedChatId]?.maxTokens || DEFAULT_CHAT_CONFIG.maxTokens
+    }),
+    [chatList, selectedChatId, selectedPromptId, promptList]
+  )
+
   /** Using Vercel's useChat hook as it supports quite a wide variety of features
    * if we want to expand it further and it is very actively maintained */
   const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages, stop, reload } = useChat({
     api: '/api/chat',
+    body: chatConfig,
     keepLastMessageOnError: true,
+    streamProtocol: 'text',
     onResponse: () => {
       /** Resetting error state when a new message is sent or retried */
       setErrorState({
@@ -40,10 +58,7 @@ export default function Home() {
       setFinishedStream(true)
     },
     onError: (error) => {
-      console.warn('Error:', { ...error })
-      if (error.toString().includes('Invalid code')) {
-        console.error('Invalid code error')
-      }
+      console.warn('Error:', error)
       setErrorState({
         hasError: true,
         selectedChatId: selectedChatId
@@ -61,9 +76,6 @@ export default function Home() {
       console.error('Error:', error)
     }
   })
-  // TODO: Re-enable when image generation is ready
-  // const [imageGenerator, setImageGenerator] = useState(false)
-  // const { loading: isImageLoading, fetchData: fetchImage } = useFetch<any>('api/images', { prompt: input })
 
   /** Load an existing chat when user clicks on one.
    * Holding selectedChat in memory for now for simplicity, might refactor to using router later on.
@@ -107,6 +119,10 @@ export default function Home() {
     [handleSubmit, stop, isLoading]
   )
 
+  const toggleConfigOpen = () => {
+    setIsConfigOpen((prev) => !prev)
+  }
+
   /** Waiting for the global store to be hydrated, otherwise we will miss the history and always start a new one
    * If user was on a chat previously, they will be directed back to it for now.
    */
@@ -147,7 +163,11 @@ export default function Home() {
                 <button className={styles.iconButton} {...{ popovertarget: 'sideMenu' }}>
                   <SidebarSimple size={20} />
                 </button>
-              ) : null}
+              ) : (
+                <button className={styles.iconButton} onClick={toggleConfigOpen}>
+                  <Sliders size={20} />
+                </button>
+              )}
             </header>
 
             <MessagesAreaMemo
@@ -164,6 +184,7 @@ export default function Home() {
               isLoading={isLoading}
             />
           </section>
+          <ChatConfigMemo isConfigOpen={isConfigOpen} />
         </>
       ) : (
         <h1 className={styles.mainLoading}>

@@ -1,7 +1,8 @@
 'use client'
 
 import { ChangeEvent, FC, FormEvent, KeyboardEvent, memo } from 'react'
-import { ArrowUDownLeft, Stop } from '@phosphor-icons/react'
+import { ArrowUDownLeft, Sliders, Stop } from '@phosphor-icons/react'
+import { useMediaQuery } from 'usehooks-ts'
 
 import styles from './styles.module.css'
 
@@ -13,6 +14,8 @@ interface Props {
 }
 
 const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, input, isLoading }) => {
+  const isLtTablet = useMediaQuery('(max-width: 960px)')
+
   /** On Enter, send the message. Use Shift/Ctrl/Alt/Meta + Enter  to add new line. */
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter') {
@@ -54,18 +57,25 @@ const ChatForm: FC<Props> = ({ handleSendMessage, handleInputChange, input, isLo
       ></textarea>
       <label className={styles.chatFormFooter} htmlFor="chatInput">
         <span className={styles.chatSendLegend}>&#9166; to Send / SHIFT + &#9166; for new line</span>
-        <button className={styles.chatSendButton} data-is-loading={isLoading}>
-          {isLoading ? (
-            <>
-              <Stop size={16} />
-              Stop
-            </>
-          ) : (
-            <>
-              Send <ArrowUDownLeft size={16} />
-            </>
-          )}
-        </button>
+        <div className={styles.hStack}>
+          {isLtTablet ? (
+            <button className={styles.iconButton} {...{ popovertarget: 'configMenu' }} type="button">
+              <Sliders size={20} />
+            </button>
+          ) : null}
+          <button className={styles.chatSendButton} data-is-loading={isLoading}>
+            {isLoading ? (
+              <>
+                <Stop size={16} />
+                Stop
+              </>
+            ) : (
+              <>
+                Send <ArrowUDownLeft size={16} />
+              </>
+            )}
+          </button>
+        </div>
       </label>
     </form>
   )

@@ -52,6 +52,10 @@ const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading, finishedStrea
     }
   }, [messages, isScrolledToBottom, finishedStream])
 
+  useEffect(() => {
+    console.log(error)
+  }, [error])
+
   const handleScroll = () => {
     const scrollElement = scrollRef.current
     if (scrollElement) {

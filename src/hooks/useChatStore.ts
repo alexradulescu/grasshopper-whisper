@@ -11,6 +11,11 @@ export interface Chat {
   messages: Array<Message>
   dateTime: string | number
   prompt?: string
+  model?: string
+  channel?: string
+  temperature?: number
+  topP?: number
+  maxTokens?: number
 }
 
 export interface ChatsStoreState {
@@ -21,8 +26,11 @@ export interface ChatsStoreState {
   setSelectedChatId: (id: string) => void
   newChat: () => void
   addChatMessage: (messages: Message[], chatId: string) => void
-  updateTitle: (title: string, chatId: string) => void
-  updatePrompt: (prompt: string, chatId: string) => void
+  updateProp: (
+    prop: 'model' | 'channel' | 'temperature' | 'topP' | 'maxTokens' | 'title' | 'prompt',
+    value: number | string,
+    chatId: string
+  ) => void
   deleteChat: (chatId: string) => void
 }
 
@@ -53,10 +61,15 @@ export const useChatsStore = create<ChatsStoreState>()(
           newChatList[chatId] = { ...newChatList[chatId], messages: [...messages] }
           return { chatList: newChatList }
         }),
-      updateTitle: (title, chatId) =>
-        set((state) => ({ chatList: { ...state.chatList, [chatId]: { ...state.chatList[chatId], title } } })),
-      updatePrompt: (prompt, chatId) =>
-        set((state) => ({ chatList: { ...state.chatList, [chatId]: { ...state.chatList[chatId], prompt } } })),
+      updateProp: (prop, value, chatId) => {
+        set((state) => {
+          if (!state.chatList[chatId]) return state
+
+          const newChatList = { ...state.chatList }
+          newChatList[chatId] = { ...newChatList[chatId], [prop]: value }
+          return { chatList: newChatList }
+        })
+      },
       deleteChat: (chatId) =>
         set((state) => {
           if (!state.chatList[chatId]) return state
