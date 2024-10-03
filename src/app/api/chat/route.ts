@@ -1,4 +1,5 @@
 import { openai } from '@ai-sdk/openai'
+import { Message } from '@ai-sdk/react'
 import { convertToCoreMessages, generateText, streamText } from 'ai'
 
 const getCurrentDate = () => {
@@ -21,35 +22,46 @@ Acknowledge Knowledge Gaps: If you don't know the answer to a query, acknowledge
 Request Additional Information: If more information is needed to provide a quality answer, ask the user for the extra details you need.`
 
 /** Allow streaming responses up to 26 seconds, netlify max. Vercel has a much higher limit */
-export const maxDuration = 26
+// export const maxDuration = 26
+
+interface ChatRequest {
+  messages: Message[]
+  userPrompt?: string | null
+  model?: string | null
+  channel?: string | null
+  temperature?: number | null
+  topP?: number | null
+  maxTokens?: number | null
+}
 
 export async function POST(req: Request) {
-  const { messages, userPrompt, model, channel, temperature, topP, maxTokens } = await req.json()
+  const { messages, userPrompt, model, temperature, topP, maxTokens }: ChatRequest = await req.json()
 
-  // console.info({ messages, userPrompt, model, channel, temperature, topP, maxTokens })
-
-  if (model.includes('o1-')) {
+  if (model && model.includes('o1-')) {
     const { text } = await generateText({
       model: openai(model),
-      messages: convertToCoreMessages(messages),
-    });
+      messages: convertToCoreMessages(messages)
+    })
 
-    return new Response(text);
+    return new Response(text)
   } else {
+    const config: Record<string, string | number> = {}
+    if (temperature) config.temperature = temperature
+    if (topP) config.topP = topP
+    if (maxTokens) config.maxTokens = maxTokens
+
     const result = await streamText({
       /** Fixing the model to gpt-4o-2024-08-06 as the plain 4o can be directed in fact to different models behind the scene.  */
-      model: openai(model) || openai('gpt-4o-2024-08-06'),
+      model: model ? openai(model) : openai('gpt-4o-2024-08-06'),
       messages: convertToCoreMessages(messages),
       /** ChatGPT and other LLM have some base prompts when using their own UIs.
        * This base prompt is used to provide a consistent experience across different platforms and try and replicate that.
        * The based prompts are not public knowledge, this is built based on anecdotal evidence and some reverse engineering.
        */
       system: userPrompt || BASE_PROMPT,
-      topP,
-      temperature,
-      maxTokens
+      ...config
     })
-  
+
     return result.toTextStreamResponse()
   }
 }

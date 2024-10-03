@@ -52,10 +52,6 @@ const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading, finishedStrea
     }
   }, [messages, isScrolledToBottom, finishedStream])
 
-  useEffect(() => {
-    console.log(error)
-  }, [error])
-
   const handleScroll = () => {
     const scrollElement = scrollRef.current
     if (scrollElement) {
@@ -95,16 +91,8 @@ const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading, finishedStrea
           <p className={styles.emptyMessageSubtitle}>
             I&lsquo;m Bullish GPT, your AI conversation assistant. How can I help you?
             <br />
-            You can ask me anything, I am running the latest ChatGPT(gpt-4omni) under the hood.
-            {/* <br />
-            I can also read most links you provide me (1 per message) for things like generic documentation and provide
-            you code snippets. */}
-            <br />
             <em>
-              Please remember not to share any sensitive proprietary data in our chats and to double-check the answers,
-              ChatGPT can make mistakes.
-              <br />
-              Read more on the{' '}
+              Please make sure to read the{' '}
               <a
                 href="https://blockone.atlassian.net/wiki/spaces/B1/pages/2911010864/BullsAI+-+Acceptable+Use+Policy"
                 rel="noopener noreferrer nofollow"
@@ -120,6 +108,7 @@ const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading, finishedStrea
           `
         </div>
       ) : null}
+
       {messages.map((message, index) => (
         <MessageItemMemo
           key={message.id}
@@ -137,6 +126,7 @@ const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading, finishedStrea
           <div className={`${styles.chatMessageContent} ${styles.isLoading}`}>Loading...</div>
         </div>
       ) : null}
+
       {error ? (
         <div className={styles.chatMessage}>
           <span className={styles.chatMessageAuthor}>
@@ -150,7 +140,9 @@ const MessagesArea: FC<MessageAreaProps> = ({ messages, isLoading, finishedStrea
             </button>
           </div>
         </div>
-      ) : null}
+      ) : (
+        <>No error</>
+      )}
 
       {messages.length ? (
         <button

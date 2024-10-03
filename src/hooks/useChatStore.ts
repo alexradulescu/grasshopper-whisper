@@ -10,42 +10,28 @@ export interface Chat {
   title?: string
   messages: Array<Message>
   dateTime: string | number
-  prompt?: string
-  model?: string
-  channel?: string
-  temperature?: number
-  topP?: number
-  maxTokens?: number
 }
 
 export interface ChatsStoreState {
-  selectedChatId: string
   chatList: Record<string, Chat>
   isStoreHydrated: boolean
   setStoreHydrated: (isHydrated: boolean) => void
-  setSelectedChatId: (id: string) => void
-  newChat: () => void
+  newChat: (id: string) => void
   addChatMessage: (messages: Message[], chatId: string) => void
-  updateProp: (
-    prop: 'model' | 'channel' | 'temperature' | 'topP' | 'maxTokens' | 'title' | 'prompt',
-    value: number | string,
-    chatId: string
-  ) => void
+  updateProp: (prop: 'title', value: string, chatId: string) => void
   deleteChat: (chatId: string) => void
 }
 
 export const useChatsStore = create<ChatsStoreState>()(
   persist(
     (set) => ({
-      selectedChatId: '',
       chatList: {},
       isStoreHydrated: false,
       setStoreHydrated: (isHydrated) => set({ isStoreHydrated: isHydrated }),
-      setSelectedChatId: (id) => set({ selectedChatId: id }),
-      newChat: () =>
+      newChat: (id) =>
         set((state) => {
           const newChat = {
-            id: crypto.randomUUID(),
+            id,
             title: 'New Chat',
             messages: [],
             dateTime: Date.now()

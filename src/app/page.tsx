@@ -1,53 +1,84 @@
 'use client'
 
-import { FormEvent, useCallback, useEffect, useState } from 'react'
+import { FormEvent, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { useChat } from '@ai-sdk/react'
-import { SidebarSimple } from '@phosphor-icons/react'
+import { SidebarSimple, Sliders } from '@phosphor-icons/react'
+import { useQueryState } from 'nuqs'
 import { useMediaQuery } from 'usehooks-ts'
 
+import { ChatConfigMemo } from '@/components/chatConfig'
 import { ChatFormMemo } from '@/components/chatForm'
 import { BullishLogo, MainSidebarMemo } from '@/components/mainSidebar'
 import { MessagesAreaMemo } from '@/components/messagesArea'
 import styles from '@/components/styles.module.css'
 import { useChatsStore } from '@/hooks/useChatStore'
+import { getCurrentDate, useConfigStore } from '@/hooks/useConfigStore'
 import { useMutation } from '@/hooks/useMutation'
 
-export default function Home() {
+const Home = () => {
   const isLtTablet = useMediaQuery('(max-width: 960px)')
+  const [isConfigOpen, setIsConfigOpen] = useState(true)
   const [finishedStream, setFinishedStream] = useState(false)
+  const [isStreaming, setIsStreaming] = useState(false)
   const [errorState, setErrorState] = useState({
     hasError: false,
     selectedChatId: ''
   })
+  const { selectedPromptId, promptList, model, temperature, topP, maxTokens } = useConfigStore()
+
+  const [selectedChatId, setSelectedChatId] = useQueryState('chat', {
+    clearOnDefault: true,
+    defaultValue: ''
+  })
+  const [initialMessage, setInitialMessage] = useQueryState('q', {
+    clearOnDefault: true,
+    defaultValue: ''
+  })
 
   /** In memory with localStorage persistance datastore */
-  const { selectedChatId, chatList, setSelectedChatId, isStoreHydrated, updateProp, addChatMessage, newChat } =
-    useChatsStore()
+  const { chatList, isStoreHydrated, updateProp, addChatMessage, newChat } = useChatsStore()
+
+  /** Memoized tge chatConfig to it doesn't recreate the hook on every render */
+  const chatConfig = useMemo(
+    () => ({
+      userPrompt: selectedPromptId
+        ? promptList[selectedPromptId].prompt.replace('<CURRENT_DATE>', getCurrentDate())
+        : null,
+      model,
+      temperature,
+      topP,
+      maxTokens
+    }),
+    [selectedPromptId, promptList, model, temperature, topP, maxTokens]
+  )
 
   /** Using Vercel's useChat hook as it supports quite a wide variety of features
    * if we want to expand it further and it is very actively maintained */
-  const { messages, input, handleInputChange, handleSubmit, isLoading, setMessages, stop, reload } = useChat({
+  const { messages, input, handleInputChange, setInput, handleSubmit, isLoading, setMessages, stop, reload } = useChat({
     api: '/api/chat',
+    body: chatConfig,
     keepLastMessageOnError: true,
+    streamProtocol: 'text',
     onResponse: () => {
+      setIsStreaming(true)
       /** Resetting error state when a new message is sent or retried */
       setErrorState({
         hasError: false,
         selectedChatId: selectedChatId
       })
     },
-    onFinish: () => {
+    onFinish: (message) => {
+      console.log('Finished:', message)
       setFinishedStream(true)
+      setIsStreaming(false)
     },
     onError: (error) => {
-      console.warn('Error:', { ...error })
-      if (error.toString().includes('Invalid code')) {
-        console.error('Invalid code error')
-      }
+      console.warn('Error:', error)
       setErrorState({
         hasError: true,
         selectedChatId: selectedChatId
       })
+      setIsStreaming(false)
     }
   })
 
@@ -61,9 +92,6 @@ export default function Home() {
       console.error('Error:', error)
     }
   })
-  // TODO: Re-enable when image generation is ready
-  // const [imageGenerator, setImageGenerator] = useState(false)
-  // const { loading: isImageLoading, fetchData: fetchImage } = useFetch<any>('api/images', { prompt: input })
 
   /** Load an existing chat when user clicks on one.
    * Holding selectedChat in memory for now for simplicity, might refactor to using router later on.
@@ -81,9 +109,12 @@ export default function Home() {
           })
         }
         setMessages(chatList[chatId].messages)
+      } else {
+        newChat(chatId)
+        setSelectedChatId(chatId)
       }
     },
-    [chatList, setMessages, setSelectedChatId, selectedChatId]
+    [chatList, setMessages, setSelectedChatId, selectedChatId, newChat]
   )
 
   /** Overloading submit to handle the ability to stop a message */
@@ -95,17 +126,13 @@ export default function Home() {
       } else {
         handleSubmit(e)
       }
-      // TODO: Re-enable when image generation is ready
-      // if (!imageGenerator) {
-      //   handleSubmit(e)
-      // } else {
-      //   console.info(`IMAGE GEN`)
-      //   const { url } = await fetchImage()
-      //   console.info({ url })
-      // }
     },
     [handleSubmit, stop, isLoading]
   )
+
+  const toggleConfigOpen = () => {
+    setIsConfigOpen((prev) => !prev)
+  }
 
   /** Waiting for the global store to be hydrated, otherwise we will miss the history and always start a new one
    * If user was on a chat previously, they will be directed back to it for now.
@@ -114,11 +141,34 @@ export default function Home() {
     if (!isStoreHydrated) return
 
     if (selectedChatId === '') {
-      newChat()
+      setErrorState({
+        hasError: false,
+        selectedChatId: selectedChatId
+      })
+      const newChatIt = crypto.randomUUID()
+      setSelectedChatId(newChatIt)
+      newChat(newChatIt)
+
+      if (initialMessage) {
+        setInput(initialMessage)
+        // handleSubmit()
+      }
+    } else {
+      loadChat(selectedChatId)
     }
 
-    loadChat(selectedChatId)
-  }, [selectedChatId, newChat, isStoreHydrated, loadChat]) // Ensures a new chat is started if no chat is selected
+    setInitialMessage('')
+  }, [
+    selectedChatId,
+    newChat,
+    isStoreHydrated,
+    loadChat,
+    setSelectedChatId,
+    handleSubmit,
+    setInput,
+    initialMessage,
+    setInitialMessage
+  ]) // Ensures a new chat is started if no chat is selected
 
   /** Adding messages to the history once the streaming finished (to prevent constant rerenders while streaming)
    * and generating a title if one wasn't generated already.
@@ -139,7 +189,7 @@ export default function Home() {
     <main className={styles.main}>
       {isStoreHydrated ? (
         <>
-          <MainSidebarMemo loadChat={loadChat} />
+          <MainSidebarMemo loadChat={loadChat} isStreaming={isStreaming} />
           <section className={styles.chatWrapper}>
             <header className={styles.chatHeader}>
               <span className={styles.chatTitle}>{selectedChatId ? chatList[selectedChatId]?.title : 'New Chat'}</span>
@@ -147,7 +197,11 @@ export default function Home() {
                 <button className={styles.iconButton} {...{ popovertarget: 'sideMenu' }}>
                   <SidebarSimple size={20} />
                 </button>
-              ) : null}
+              ) : (
+                <button className={styles.iconButton} onClick={toggleConfigOpen}>
+                  <Sliders size={20} />
+                </button>
+              )}
             </header>
 
             <MessagesAreaMemo
@@ -164,6 +218,7 @@ export default function Home() {
               isLoading={isLoading}
             />
           </section>
+          <ChatConfigMemo isConfigOpen={isConfigOpen} />
         </>
       ) : (
         <h1 className={styles.mainLoading}>
@@ -173,3 +228,24 @@ export default function Home() {
     </main>
   )
 }
+
+/** Setting up another Page component with suspense to fix the NextJS CSR bailout issue from nuqs
+ * https://nextjs.org/docs/messages/missing-suspense-with-csr-bailout
+ */
+const HomePage = () => {
+  return (
+    <Suspense
+      fallback={
+        <main className={styles.main}>
+          <h1 className={styles.mainLoading}>
+            <BullishLogo /> Bullish GPT is loading...
+          </h1>
+        </main>
+      }
+    >
+      <Home />
+    </Suspense>
+  )
+}
+
+export default HomePage

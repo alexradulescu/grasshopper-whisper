@@ -1,37 +1,59 @@
 'use client'
 
-import { FC, FormEvent, memo, useEffect, useMemo, useState } from 'react'
+import { FC, FormEvent, memo, useEffect, useMemo, useRef, useState } from 'react'
 import { Pencil, Question, TrashSimple } from '@phosphor-icons/react'
 import { clsx } from 'clsx'
 import { useMediaQuery } from 'usehooks-ts'
 
 import styles from '@/components/styles.module.css'
 import { Tooltip } from '@/components/Tooltip'
-import { useChatsStore } from '@/hooks/useChatStore'
-import { usePromptStore } from '@/hooks/usePromptStore'
+import { useConfigStore } from '@/hooks/useConfigStore'
 
-const PromptSetup = () => {
+interface PromptFormProps {
+  promptId?: string | null
+  handleEditPrompt: (id: string | null) => void
+}
+
+const PromptForm: FC<PromptFormProps> = ({ promptId, handleEditPrompt }) => {
+  const formRef = useRef(null)
   const [title, setTitle] = useState('')
   const [prompt, setPrompt] = useState('')
   const [tags, setTags] = useState('')
-  const { addPrompt } = usePromptStore()
+  const { addPrompt, editPrompt, promptList } = useConfigStore()
+
+  useEffect(() => {
+    if (promptId && promptList[promptId]) {
+      const { title, prompt, tags } = promptList[promptId]
+      setTitle(title)
+      setPrompt(prompt)
+      setTags(tags.join(', '))
+    }
+  }, [promptId, promptList])
 
   const reset = () => {
     setTitle('')
     setPrompt('')
     setTags('')
+    handleEditPrompt(null)
+
+    const formElement = formRef.current as any
+    formElement.hidePopover()
   }
 
   const handleSavePrompt = (e: FormEvent) => {
     e.preventDefault()
     if (!title || !prompt || !tags) return
 
-    addPrompt(title, prompt, tags.split(', '))
+    if (promptId) {
+      editPrompt(promptId, title, prompt, tags.split(', '))
+    } else {
+      addPrompt(title, prompt, tags.split(', '))
+    }
     reset()
   }
 
   return (
-    <div id="createPrompt" popover="auto" className={styles.modal}>
+    <div id="promptForm" {...{ popover: 'manual' }} className={styles.modal} ref={formRef}>
       <form onSubmit={handleSavePrompt} className={styles.vStack}>
         <h2 className={styles.heading}>Setup your own custom prompt</h2>
         <label className={styles.formControl}>
@@ -66,14 +88,10 @@ const PromptSetup = () => {
             className={styles.input}
           />
         </label>
-        <button className={styles.button}>Save Prompt</button>
-        <button
-          className={styles.button}
-          popoverTarget="createPrompt"
-          popoverTargetAction="hide"
-          type="button"
-          onClick={reset}
-        >
+        <button className={clsx(styles.button, styles.colorBlue)} type="submit">
+          Save Prompt
+        </button>
+        <button className={clsx(styles.button, styles.colorYellow)} onClick={reset}>
           Cancel
         </button>
       </form>
@@ -81,22 +99,19 @@ const PromptSetup = () => {
   )
 }
 
-const PromptSetupMemo = memo(PromptSetup)
+const PromptFormMemo = memo(PromptForm)
 
 const PromptsModal = () => {
-  const { setSelectedPromptId, promptList, deletePrompt } = usePromptStore()
-
-  const handleEditPrompt = (id: string) => {
-    // Noop for now
-  }
+  const { setSelectedPromptId, promptList, deletePrompt } = useConfigStore()
+  const [editPromptId, setEditPromptId] = useState<string | null>(null)
 
   return (
-    <section id="promptModal" popover="auto" className={styles.modal}>
+    <section id="promptModal" {...{ popover: 'auto' }} className={styles.modal}>
       <div className={clsx(styles.vStack)}>
         <div className={clsx(styles.hStack, styles.spaceBetween, styles.alignItemsCenter, styles.fs5)}>
           <h2 className={clsx(styles.text, styles.colorGrey100, styles.fs5)}>Select a prompt</h2>
           <button
-            popoverTarget="createPrompt"
+            {...{ popoverTarget: 'promptForm' }}
             id="setup-prompt-button"
             className={clsx(styles.button, styles.colorGreen)}
           >
@@ -110,8 +125,7 @@ const PromptsModal = () => {
                   <button
                     className={styles.listItem}
                     onClick={() => setSelectedPromptId(prompt.id)}
-                    popoverTarget="promptModal"
-                    popoverTargetAction="hide"
+                    {...{ popoverTargetAction: 'hide', popoverTargetHide: 'promptModal' }}
                   >
                     <div className={styles.hStack}>
                       <h2>{prompt.title}</h2>
@@ -131,7 +145,12 @@ const PromptsModal = () => {
                   >
                     <TrashSimple size={16} weight="bold" />
                   </button>
-                  <button className={clsx(styles.button, styles.sizeSmall)} onClick={() => handleEditPrompt(prompt.id)}>
+                  <button
+                    className={clsx(styles.button, styles.sizeSmall)}
+                    onClick={() => setEditPromptId(prompt.id)}
+                    type="button"
+                    {...{ popoverTargetAction: 'show', popoverTargetHide: 'promptForm' }}
+                  >
                     <Pencil size={16} weight="bold" />
                   </button>
                 </div>
@@ -140,13 +159,12 @@ const PromptsModal = () => {
         </div>
         <button
           className={clsx(styles.button, styles.fullWidth)}
-          popoverTarget="promptModal"
-          popoverTargetAction="hide"
+          {...{ popoverTargetAction: 'hide', popoverTargetHide: 'promptModal' }}
         >
           Close
         </button>
       </div>
-      <PromptSetupMemo />
+      <PromptFormMemo promptId={editPromptId} handleEditPrompt={setEditPromptId} />
     </section>
   )
 }
@@ -167,7 +185,7 @@ const CONFIG = {
     { name: 'OpenAI GPT-4o', value: 'gpt-4o-2024-08-06', maxTokens: 16_384 },
     { name: 'OpenAI GPT-4o Mini', value: 'gpt-4o-mini-2024-07-18', maxTokens: 16_384 },
     { name: 'OpenAI GPT o1 Mini', value: 'o1-mini', maxTokens: 32_768 },
-    { name: 'OpenAI GPT o1 Preview', value: 'o1-preview', maxTokens: 32_768 },
+    { name: 'OpenAI GPT o1 Preview', value: 'o1-preview', maxTokens: 32_768 }
     /** For Claude, maxOutputTokens could be 8_192 but not by default according to https://docs.anthropic.com/en/docs/about-claude/models */
     // { name: 'Claude 3.5 Sonnet', value: 'claude-3.5', maxTokens: 4_096 },
     /** Assuming we're using gemini 1.5 pro or flash */
@@ -182,7 +200,7 @@ const CONFIG = {
       description: 'Default AI channel with no access to internal data',
       defaultTemperature: 0.5,
       defaultTopP: 0.9
-    },
+    }
     // {
     //   name: 'Confluence',
     //   value: 'confluence',
@@ -207,38 +225,33 @@ interface Props {
 export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
   const isLtTablet = useMediaQuery('(max-width: 960px)')
 
-  const { chatList, selectedChatId, updateProp } = useChatsStore()
-  const { selectedPromptId, promptList, setSelectedPromptId } = usePromptStore()
+  const {
+    selectedPromptId,
+    promptList,
+    setSelectedPromptId,
+    updateProp,
+    model,
+    channel,
+    topP,
+    maxTokens,
+    temperature
+  } = useConfigStore()
 
   const selectedPrompt = useMemo(
     () => (selectedPromptId && promptList[selectedPromptId] ? promptList[selectedPromptId] : null),
     [selectedPromptId, promptList]
   )
 
-  const selectedChat = chatList[selectedChatId]
+  const selectedModel = useMemo(() => CONFIG.models.find((m) => m.value === model), [model])
 
-  /** For older chats without the default config, set the missing values to defaults when the user open a chat */
-  useEffect(() => {
-    if (!selectedChat.model) updateProp('model', DEFAULT_CHAT_CONFIG.model, selectedChatId)
-    if (!selectedChat.channel) updateProp('channel', DEFAULT_CHAT_CONFIG.channel, selectedChatId)
-    if (!selectedChat.temperature) updateProp('temperature', DEFAULT_CHAT_CONFIG.temperature, selectedChatId)
-    if (!selectedChat.topP) updateProp('topP', DEFAULT_CHAT_CONFIG.topP, selectedChatId)
-    if (!selectedChat.maxTokens) updateProp('maxTokens', DEFAULT_CHAT_CONFIG.maxTokens, selectedChatId)
-  }, [selectedChat.channel, selectedChat.model, selectedChat.temperature, selectedChat.topP, selectedChat.maxTokens, selectedChatId, updateProp])
-
-  const selectedModel = useMemo(
-    () => CONFIG.models.find((model) => model.value === selectedChat.model),
-    [selectedChat.model]
-  )
-
-  const o1ModelSelected = useMemo(() => selectedChat.model?.includes('o1-'), [selectedChat.model])
+  const o1ModelSelected = useMemo(() => model?.includes('o1-'), [model])
 
   const handleResetDefault = () => {
-    updateProp('model', DEFAULT_CHAT_CONFIG.model, selectedChatId)
-    updateProp('channel', DEFAULT_CHAT_CONFIG.channel, selectedChatId)
-    updateProp('temperature', DEFAULT_CHAT_CONFIG.temperature, selectedChatId)
-    updateProp('topP', DEFAULT_CHAT_CONFIG.topP, selectedChatId)
-    updateProp('maxTokens', DEFAULT_CHAT_CONFIG.maxTokens, selectedChatId)
+    updateProp('model', DEFAULT_CHAT_CONFIG.model)
+    updateProp('channel', DEFAULT_CHAT_CONFIG.channel)
+    updateProp('temperature', DEFAULT_CHAT_CONFIG.temperature)
+    updateProp('topP', DEFAULT_CHAT_CONFIG.topP)
+    updateProp('maxTokens', DEFAULT_CHAT_CONFIG.maxTokens)
     setSelectedPromptId(null)
   }
 
@@ -254,9 +267,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
         <select
           name="model"
           className={styles.input}
-          value={selectedChat.model}
+          value={model || ''}
           onChange={(e) => {
-            updateProp('model', e.target.value, selectedChatId)
+            updateProp('model', e.target.value)
           }}
         >
           {CONFIG.models.map((model) => (
@@ -266,7 +279,12 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
           ))}
         </select>
       </label>
-      {o1ModelSelected ? <p className={clsx(styles.fs2, styles.colorRed, styles.text)}>o1 models don&#39;t currently support custom parameters (they ignore them directly) so the config below is disabled as long as an o1 model is selected.</p> : null}
+      {o1ModelSelected ? (
+        <p className={clsx(styles.fs2, styles.colorRed, styles.text)}>
+          o1 models don&#39;t currently support custom parameters (they ignore them directly) so the config below is
+          disabled as long as an o1 model is selected.
+        </p>
+      ) : null}
       <label className={styles.formControl}>
         <p className={styles.label}>
           Channel
@@ -278,9 +296,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
         <select
           name="channel"
           className={styles.input}
-          value={selectedChat.channel}
+          value={channel || ''}
           onChange={(e) => {
-            updateProp('channel', e.target.value, selectedChatId)
+            updateProp('channel', e.target.value)
           }}
           disabled={o1ModelSelected}
         >
@@ -307,9 +325,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
             max="1"
             step="0.1"
             className={clsx(styles.input, styles.sizeSmall)}
-            value={selectedChat.temperature}
+            value={temperature || ''}
             onChange={(e) => {
-              updateProp('temperature', parseFloat(e.target.value), selectedChatId)
+              updateProp('temperature', parseFloat(e.target.value))
             }}
             disabled={o1ModelSelected}
           />
@@ -320,9 +338,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
           max="1"
           step="0.1"
           className={styles.input}
-          value={selectedChat.temperature}
+          value={temperature || ''}
           onChange={(e) => {
-            updateProp('temperature', parseFloat(e.target.value), selectedChatId)
+            updateProp('temperature', parseFloat(e.target.value))
           }}
           disabled={o1ModelSelected}
         />
@@ -342,9 +360,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
             max="1"
             step="0.1"
             className={clsx(styles.input, styles.sizeSmall)}
-            value={selectedChat.topP}
+            value={topP || ''}
             onChange={(e) => {
-              updateProp('topP', parseFloat(e.target.value), selectedChatId)
+              updateProp('topP', parseFloat(e.target.value))
             }}
             disabled={o1ModelSelected}
           />
@@ -355,9 +373,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
           max="1"
           step="0.1"
           className={styles.input}
-          value={selectedChat.topP}
+          value={topP || ''}
           onChange={(e) => {
-            updateProp('topP', parseFloat(e.target.value), selectedChatId)
+            updateProp('topP', parseFloat(e.target.value))
           }}
           disabled={o1ModelSelected}
         />
@@ -377,9 +395,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
             max={selectedModel?.maxTokens || 4_096}
             step="64"
             className={clsx(styles.input, styles.sizeSmall)}
-            value={selectedChat.maxTokens}
+            value={maxTokens || ''}
             onChange={(e) => {
-              updateProp('maxTokens', parseInt(e.target.value), selectedChatId)
+              updateProp('maxTokens', parseInt(e.target.value))
             }}
             disabled={o1ModelSelected}
           />
@@ -390,9 +408,9 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
           max={selectedModel?.maxTokens || 4_096}
           step="64"
           className={styles.input}
-          value={selectedChat.maxTokens}
+          value={maxTokens || ''}
           onChange={(e) => {
-            updateProp('maxTokens', parseInt(e.target.value), selectedChatId)
+            updateProp('maxTokens', parseInt(e.target.value))
           }}
           disabled={o1ModelSelected}
         />
@@ -425,7 +443,11 @@ export const ChatConfig: FC<Props> = ({ isConfigOpen }) => {
             <p className={clsx(styles.colorGrey300, styles.text)}>No prompt selected</p>
           )}
         </div>
-        <button popoverTarget="promptModal" className={clsx(styles.button, styles.colorGreen)} disabled={o1ModelSelected}>
+        <button
+          {...{ popoverTarget: 'promptModal' }}
+          className={clsx(styles.button, styles.colorGreen)}
+          disabled={o1ModelSelected}
+        >
           Select Prompt
         </button>
         <PromptsModalMemo />

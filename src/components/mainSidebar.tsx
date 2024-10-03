@@ -2,6 +2,7 @@
 
 import { FC, memo, useMemo, useState } from 'react'
 import { ChatText, RocketLaunch } from '@phosphor-icons/react'
+import { useQueryState } from 'nuqs'
 import { useMediaQuery } from 'usehooks-ts'
 
 import styles from '@/components/styles.module.css'
@@ -11,6 +12,7 @@ import { ChatHistoryItemMemo } from './chatHistoryItem'
 
 interface Props {
   loadChat: (chatId: string) => void
+  isStreaming: boolean
 }
 
 export const BullishLogo = () => (
@@ -23,11 +25,18 @@ export const BullishLogo = () => (
   </svg>
 )
 
-const MainSidebar: FC<Props> = ({ loadChat }) => {
-  const [filter, setFilter] = useState('')
+const MainSidebar: FC<Props> = ({ loadChat, isStreaming }) => {
   const isLtTablet = useMediaQuery('(max-width: 960px)')
+  const [selectedChatId, setSelectedChatId] = useQueryState('chat', {
+    clearOnDefault: true,
+    defaultValue: ''
+  })
+  const [filter, setFilter] = useQueryState('search', {
+    clearOnDefault: true,
+    defaultValue: ''
+  })
 
-  const { chatList, deleteChat, newChat, selectedChatId } = useChatsStore()
+  const { chatList, deleteChat, newChat } = useChatsStore()
 
   const filteredChatList = useMemo(
     () =>
@@ -36,7 +45,22 @@ const MainSidebar: FC<Props> = ({ loadChat }) => {
   )
 
   const handleSelectChat = (chatId: string) => {
+    if (isStreaming) return
+
     loadChat(chatId)
+  }
+
+  const handleNewChat = () => {
+    const newChatIt = crypto.randomUUID()
+    newChat(newChatIt)
+    setSelectedChatId(newChatIt)
+  }
+
+  const handleDeleteChat = (chatId: string) => {
+    deleteChat(chatId)
+    if (selectedChatId === chatId) {
+      setSelectedChatId('')
+    }
   }
 
   return (
@@ -48,7 +72,8 @@ const MainSidebar: FC<Props> = ({ loadChat }) => {
         </span>
         <button
           className={styles.iconButton}
-          onClick={newChat}
+          disabled={isStreaming}
+          onClick={handleNewChat}
           {...{ popovertarget: 'sideMenu', popovertargetaction: 'hide' }}
         >
           <ChatText size={20} />
@@ -67,14 +92,15 @@ const MainSidebar: FC<Props> = ({ loadChat }) => {
             key={chat.id}
             {...chat}
             handleSelectChat={handleSelectChat}
-            deleteChat={deleteChat}
+            deleteChat={handleDeleteChat}
             isSelectedChat={chat.id === selectedChatId}
           />
         ))}
       </div>
       <button
         className={styles.asideNewChatButton}
-        onClick={newChat}
+        onClick={handleNewChat}
+        disabled={isStreaming}
         {...{ popovertarget: 'sideMenu', popovertargetaction: 'hide' }}
       >
         <ChatText size={20} /> New Chat

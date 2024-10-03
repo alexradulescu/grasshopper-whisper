@@ -10,13 +10,23 @@ interface Prompt {
   tags: string[]
 }
 
-interface PromptStoreState {
+interface ConfigStoreState {
   selectedPromptId: string | null
   promptList: Record<string, Prompt>
   addPrompt: (title: string, prompt: string, tags: string[]) => void
   editPrompt: (id: string, title: string, prompt: string, tags: string[]) => void
   deletePrompt: (id: string) => void
   setSelectedPromptId: (id: string | null) => void
+  prompt?: string | null
+  model?: string | null
+  channel?: string | null
+  temperature?: number | null
+  topP?: number | null
+  maxTokens?: number | null
+  updateProp: (
+    prop: 'model' | 'channel' | 'temperature' | 'topP' | 'maxTokens' | 'prompt',
+    value: number | string | null
+  ) => void
 }
 
 export const getCurrentDate = () => {
@@ -45,13 +55,11 @@ const DEFAULT_PROMPT: Prompt = {
   tags: ['default']
 }
 
-
-
-export const usePromptStore = create<PromptStoreState>()(
+export const useConfigStore = create<ConfigStoreState>()(
   persist(
     (set) => ({
       selectedPromptId: '',
-      promptList: { [DEFAULT_PROMPT.id] : DEFAULT_PROMPT},
+      promptList: { [DEFAULT_PROMPT.id]: DEFAULT_PROMPT },
       setSelectedPromptId: (id) =>
         set((state) => {
           if (id === null) {
@@ -95,10 +103,15 @@ export const usePromptStore = create<PromptStoreState>()(
           const newPromptList = { ...state.promptList }
           newPromptList[id] = { ...newPromptList[id], title, prompt, tags }
           return { promptList: newPromptList }
+        }),
+      updateProp: (prop, value) => {
+        set(() => {
+          return { [prop]: value }
         })
+      }
     }),
     {
-      name: 'prompts-zustand-storage'
+      name: 'config-zustand-storage'
       // onRehydrateStorage:
       //   ({ setStoreHydrated }) =>
       //   () =>
